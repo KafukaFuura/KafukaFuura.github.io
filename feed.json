@@ -1,0 +1,40 @@
+{
+    "version": "https://jsonfeed.org/version/1",
+    "title": "untitled",
+    "description": "",
+    "home_page_url": "https://kafukafuura.github.io",
+    "items": [
+        {
+            "id": "https://kafukafuura.github.io/2023/05/11/%E2%80%9DP.N.%E2%80%9C/",
+            "url": "https://kafukafuura.github.io/2023/05/11/%E2%80%9DP.N.%E2%80%9C/",
+            "title": "",
+            "date_published": "2023-05-11T12:00:41.507Z",
+            "content_html": "<p>我的名字叫做赤木杏。<br>\n有一天，突然有很多人把我从黑暗的世界里，</p>\n<p>给拉到了充满光明的世界里。</p>\n<p>快乐的运动会，快乐的修学旅行。</p>\n<p>快乐的文化祭，非常非常快乐。</p>\n<p>我很幸福。</p>\n",
+            "tags": []
+        },
+        {
+            "id": "https://kafukafuura.github.io/2023/05/10/%E2%80%9C%E6%97%85%E7%A8%8B%E7%9A%84%E5%BC%80%E5%A7%8B%E2%80%9D/",
+            "url": "https://kafukafuura.github.io/2023/05/10/%E2%80%9C%E6%97%85%E7%A8%8B%E7%9A%84%E5%BC%80%E5%A7%8B%E2%80%9D/",
+            "title": "“旅程的开始”",
+            "date_published": "2023-05-10T10:01:42.000Z",
+            "content_html": "<p>本来想着好好把 markdown 的语言看完之后来做一个完美的开始，但因为最近实在太忙，抽出时间好不容易把网站的基础搭建好，为了纪念今天，我决定还是现在写下第一篇文章。主要是用来记录目前遇到的问题，方便之后修正。在最开始，网站和本地的图片都能正常加载，但后来网站上的图片不能正常加载，而本地的时好时坏，在下载完 shoka 教程中的第一个插件后，本地又不行了，目前进行到将高亮显示关闭那一步。</p>\n<p>test the localhost</p>\n<h1 id=\"仅用来标记\"><a class=\"markdownIt-Anchor\" href=\"#仅用来标记\">#</a> 仅用来标记</h1>\n<p>又一次测试</p>\n<p>第三次测试</p>\n",
+            "tags": []
+        },
+        {
+            "id": "https://kafukafuura.github.io/2023/05/10/blog/",
+            "url": "https://kafukafuura.github.io/2023/05/10/blog/",
+            "title": "blog",
+            "date_published": "2023-05-10T00:26:10.000Z",
+            "content_html": "",
+            "tags": []
+        },
+        {
+            "id": "https://kafukafuura.github.io/2023/05/10/hello-world/",
+            "url": "https://kafukafuura.github.io/2023/05/10/hello-world/",
+            "title": "Hello World",
+            "date_published": "2023-05-10T00:22:54.325Z",
+            "content_html": "<p>Welcome to <span class=\"exturl\" data-url=\"aHR0cHM6Ly9oZXhvLmlvLw==\">Hexo</span>! This is your very first post. Check <span class=\"exturl\" data-url=\"aHR0cHM6Ly9oZXhvLmlvL2RvY3Mv\">documentation</span> for more info. If you get any problems when using Hexo, you can find the answer in <span class=\"exturl\" data-url=\"aHR0cHM6Ly9oZXhvLmlvL2RvY3MvdHJvdWJsZXNob290aW5nLmh0bWw=\">troubleshooting</span> or you can ask me on <span class=\"exturl\" data-url=\"aHR0cHM6Ly9naXRodWIuY29tL2hleG9qcy9oZXhvL2lzc3Vlcw==\">GitHub</span>.</p>\n<h2 id=\"quick-start\"><a class=\"markdownIt-Anchor\" href=\"#quick-start\">#</a> Quick Start</h2>\n<h3 id=\"create-a-new-post\"><a class=\"markdownIt-Anchor\" href=\"#create-a-new-post\">#</a> Create a new post</h3>\n<figure class=\"highlight bash\"><figcaption data-lang=\"bash\"><span>h</span></figcaption><table><tr><td data-num=\"1\"></td><td><pre>$ hexo new <span class=\"token string\">\"My New Post\"</span></pre></td></tr></table></figure><p>More info: <span class=\"exturl\" data-url=\"aHR0cHM6Ly9oZXhvLmlvL2RvY3Mvd3JpdGluZy5odG1s\">Writing</span></p>\n<h3 id=\"run-server\"><a class=\"markdownIt-Anchor\" href=\"#run-server\">#</a> Run server</h3>\n<figure class=\"highlight bash\"><figcaption data-lang=\"bash\"><span>h</span></figcaption><table><tr><td data-num=\"1\"></td><td><pre>$ hexo server</pre></td></tr></table></figure><p>More info: <span class=\"exturl\" data-url=\"aHR0cHM6Ly9oZXhvLmlvL2RvY3Mvc2VydmVyLmh0bWw=\">Server</span></p>\n<h3 id=\"generate-static-files\"><a class=\"markdownIt-Anchor\" href=\"#generate-static-files\">#</a> Generate static files</h3>\n<figure class=\"highlight bash\"><figcaption data-lang=\"bash\"><span>h</span></figcaption><table><tr><td data-num=\"1\"></td><td><pre>$ hexo generate</pre></td></tr></table></figure><p>More info: <span class=\"exturl\" data-url=\"aHR0cHM6Ly9oZXhvLmlvL2RvY3MvZ2VuZXJhdGluZy5odG1s\">Generating</span></p>\n<h3 id=\"deploy-to-remote-sites\"><a class=\"markdownIt-Anchor\" href=\"#deploy-to-remote-sites\">#</a> Deploy to remote sites</h3>\n<figure class=\"highlight bash\"><figcaption data-lang=\"bash\"><span>h</span></figcaption><table><tr><td data-num=\"1\"></td><td><pre>$ hexo deploy</pre></td></tr></table></figure><p>More info: <span class=\"exturl\" data-url=\"aHR0cHM6Ly9oZXhvLmlvL2RvY3Mvb25lLWNvbW1hbmQtZGVwbG95bWVudC5odG1s\">Deployment</span></p>\n",
+            "tags": []
+        }
+    ]
+}
