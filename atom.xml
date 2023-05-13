@@ -27,6 +27,8 @@
 &lt;p&gt;又一次测试&lt;/p&gt;
 &lt;p&gt;第三次测试&lt;/p&gt;
 &lt;p&gt;刚刚看到了曙光，在博客上出现了图片，但这次是第四次&lt;/p&gt;
+&lt;h2 id=&#34;ok&#34;&gt;&lt;a class=&#34;markdownIt-Anchor&#34; href=&#34;#ok&#34;&gt;#&lt;/a&gt; ok&lt;/h2&gt;
+&lt;p&gt;目前算是解决了但没有完全解决，出错的原因应该是 github 采用的是 https 协议但主题自带的图床是 http 协议，目前解决办法：采用 SM.MS 图床&lt;/p&gt;
 </content>
         <updated>2023-05-10T10:01:42.000Z</updated>
     </entry>
