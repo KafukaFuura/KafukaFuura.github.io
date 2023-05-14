@@ -14,7 +14,7 @@
         <lastBuildDate>Thu, 11 May 2023 20:00:41 +0800</lastBuildDate>
         <item>
             <guid isPermalink="true">https://kafukafuura.github.io/2023/05/11/%E2%80%9DP.N.%E2%80%9C/</guid>
-            <title></title>
+            <title>P.N.</title>
             <link>https://kafukafuura.github.io/2023/05/11/%E2%80%9DP.N.%E2%80%9C/</link>
             <pubDate>Thu, 11 May 2023 20:00:41 +0800</pubDate>
             <description><![CDATA[ &lt;p&gt;我的名字叫做赤木杏。&lt;br&gt;
@@ -40,6 +40,7 @@
 &lt;p&gt;目前算是解决了但没有完全解决，出错的原因应该是 github 采用的是 https 协议但主题自带的图床是 http 协议，目前解决办法：采用 SM.MS 图床&lt;/p&gt;
 &lt;h1 id=&#34;第二个大问题&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#第二个大问题&#34;&gt;#&lt;/a&gt; 第二个大问题&lt;/h1&gt;
 &lt;p&gt;social 部分所有的图标均为黑色，鼠标移上去后也没有反色效果，目前未找到原因&lt;/p&gt;
+&lt;p&gt;啊哈，问题修复了，可能之前是因为网络更新较慢，总的来说是要对着给的 exmple 好好修改，接下来要搞更多的功能！&lt;/p&gt;
  ]]></description>
         </item>
         <item>
