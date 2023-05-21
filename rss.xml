@@ -10,8 +10,24 @@
         </author>
         <description></description>
         <language>en</language>
-        <pubDate>Mon, 15 May 2023 23:03:03 +0800</pubDate>
-        <lastBuildDate>Mon, 15 May 2023 23:03:03 +0800</lastBuildDate>
+        <pubDate>Sun, 21 May 2023 21:52:21 +0800</pubDate>
+        <lastBuildDate>Sun, 21 May 2023 21:52:21 +0800</lastBuildDate>
+        <item>
+            <guid isPermalink="true">https://kafukafuura.github.io/2023/05/21/%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86/</guid>
+            <title>神经网络的基本原理</title>
+            <link>https://kafukafuura.github.io/2023/05/21/%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86/</link>
+            <pubDate>Sun, 21 May 2023 21:52:21 +0800</pubDate>
+            <description><![CDATA[ &lt;h1 id=&#34;神经网络的基本原理&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#神经网络的基本原理&#34;&gt;#&lt;/a&gt; 神经网络的基本原理&lt;/h1&gt;
+&lt;h2 id=&#34;反向传播&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#反向传播&#34;&gt;#&lt;/a&gt; 反向传播&lt;/h2&gt;
+&lt;p&gt;其实就是求导的链式法则，因为需要从右往左计算，所以叫反向传播。&lt;/p&gt;
+&lt;h2 id=&#34;loss-function&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#loss-function&#34;&gt;#&lt;/a&gt; LOSS FUNCTION&lt;/h2&gt;
+&lt;p&gt;用来衡量误差的，说白了就是一种 “近似解与真实解的距离”。&lt;/p&gt;
+&lt;h2 id=&#34;各种误差&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#各种误差&#34;&gt;#&lt;/a&gt; 各种误差&lt;/h2&gt;
+&lt;h3 id=&#34;泛化误差&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#泛化误差&#34;&gt;#&lt;/a&gt; 泛化误差&lt;/h3&gt;
+&lt;h2 id=&#34;梯度下降&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#梯度下降&#34;&gt;#&lt;/a&gt; 梯度下降&lt;/h2&gt;
+&lt;p&gt;就是通过计算梯度来使得 loss function 的值减小，有时因为计算量太大，会选择随机梯度下降，下降一步被称为 Epoch。&lt;/p&gt;
+ ]]></description>
+        </item>
         <item>
             <guid isPermalink="true">https://kafukafuura.github.io/2023/05/15/%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/</guid>
             <title>test</title>
