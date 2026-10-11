@@ -1,0 +1,319 @@
+length=2742238
+
+===== PATTERN 'function\\s+syncDetailLayout\\s*\\(' count=1 =====
+
+--- occurrence 1 at 2728262 ---
+'on-path',lineage(active).includes(n.id));el.classList.toggle('expanded',expanded.has(n.id));el.classList.toggle('dim',active!=='root'&&!focusSet.has(n.id));el.classList.toggle('context',active!=='root'&&focusSet.has(n.id)&&n.id!==active&&!lineage(active).includes(n.id));
+   requestAnimationFrame(()=>{el.classList.remove('entering');el.style.left=p.x+'px';el.style.top=p.y+'px'});
+ });
+ renderEdges();renderDetail();renderNav();renderDock();syncDetailLayout();applyView();requestAnimationFrame(()=>typesetMath(nodeLayer));
+}
+function renderEdges(){const newKeys=new Set();let html='';visible.forEach(n=>{if(!(n.children?.length&&expanded.has(n.id)))return;n.children.forEach(c=>{if(!pos[c.id])return;const a=pos[n.id],b=pos[c.id],sx=a.x+W,sy=a.y,ex=b.x,ey=b.y,m=(sx+ex)/2,key=n.id+'>'+c.id;newKeys.add(key);const cls=['pathline'];if(lineage(active).includes(n.id)&&lineage(active).includes(c.id))cls.push('on-path');else if(active!=='root'&&focusSet.has(n.id)&&focusSet.has(c.id))cls.push('context');else if(active!=='root')cls.push('dim');if(!edgeKeys.has(key))cls.push('new');html+=`<path d="M ${sx} ${sy} C ${m} ${sy}, ${m} ${ey}, ${ex} ${ey}" class="${cls.join(' ')}"/>`})});svg.innerHTML=html;edgeKeys.clear();newKeys.forEach(k=>edgeKeys.add(k))}
+function selectNode(id,push=true){if(!map.has(id))return;if(push&&id!==active)history.push(active);active=id;const n=map.get(id);if(n.children?.length&&!expanded.has(id))expanded.add(id);render();if(autoFocus)setTimeout(()=>focusBranch(id),60);showChip(`聚焦：${n.label}`)}
+function toggleNode(id){const n=map.get(id);if(!n.children?.length)return;if(expanded.has(id)){expanded.delete(id);if(active!==id&&isDesc(active,id))active=id}else expanded.add(id);render();if(autoFocus)setTimeout(()=>focusBranch(active),70)}
+function isDesc(id,root){let x=id;while(x){if(x===root)return true;x=parents.get(x)}return false}
+function boundsFor(ids){const arr=[...ids].filter(id=>pos[id]);if(!arr.length)return null;return {minx:Math.min(...arr.map(id=>pos[id].x)),maxx:Math.max(...arr.map(id=>pos[id].x+W)),miny:Math.min(...arr.map(id=>pos[id].y-H/2)),maxy:Math.max(...arr.map(id=>pos[id].y+H/2))}}
+function applyView(manual=false){world.classList.toggle('manual',manual);world.style.transform=`translate(${view.x}px,${view.y}px) scale(${view.s})`}
+function detailReserve(){if(detail.classList.contains('hidden')||detail.classList.contains('fullscreen'))return 28;const portrait=matchMedia('(pointer:coarse) and (max-width:980px) and (orientation:portrait)').matches;const cap=portrait?.53:.48;return Math.min(detail.offsetWidth+32,viewport.clientWidth*cap)}
+function syncDetailLayout(){contextDock.style.right=detail.classList.contains('hidden')?'20px':`calc(${detail.offsetWidth}px + 36px)`;viewport.classList.toggle('detail-full',detail.classList.contains('fullscreen'))}
+function setDetailFullscreen(on){detail.classList.toggle('fullscreen',on);syncDetailLayout();renderDetail();setTimeout(()=>on?null:(autoFocus?focusBranch(active):fitAll()),80)}
+function fitAll(){const b=boundsFor(new Set(visible.map(n=>n.id)));if(!b)return;const vw=viewport.clientWidth-detailReserve(),vh=viewport.clientHeight-115;view.s=Math.min(1.05,(vw-120)/(b.maxx-b.minx),(vh-90)/(b.maxy-b.miny));view.x=45+(vw-(b.maxx-b.minx)*view.s)/2-b.minx*view.s;view.y=35+(vh-(b.maxy-b.miny)*view.s)/2-b.miny*view.s;applyView(false)}
+function focusBranch(id){if(id==='root'){fitAll();return}const ids=buildZoomSet(id),b=boundsFor(ids);if(!b)return;const cardW=detailReserve(),vw=viewport.clientWidth-cardW,vh=viewport.clientHeight-112;let s=Math.min(1.55,(vw-88)/(b.maxx-b.minx),(vh-72)/(b.maxy-b.miny));s=Math.max(.72,s);view.s=s;view.x=52+(vw-(b.maxx-b.minx)*s)/2-b.minx*s;view.y=22+(vh-(b.maxy-b.miny)*s)/2-b.miny*s;applyView(false)}
+function back(){if(history.length){const id=history.pop();active=id;render();if(autoFocus)setTimeout(()=>focusBranch(id),50)}else if(parents.has(active)){active=parents.get(active);render();if(autoFocus)setTimeout(()=>focusBranch(active),50)}}
+
+let mathQueue=Promise.resolve();
+function clearMath(target){
+  if(!target || !window.MathJax || !MathJax.typesetClear) return;
+  try{MathJax.typesetClear([target]);}catch(_e){}
+}
+function typesetMath(target){
+  if(!target) return Promise.resolve();
+  mathQueue=mathQueue.then(async()=>{
+    let tries=0;
+    while((!window.MathJax || !MathJax.typesetPromise) && tries<80){await new Promise(r=>setTimeout(r,50));tries++;}
+    if(!window.MathJax || !MathJax.typesetPromise) return;
+    if(MathJax.startup?.promise) await MathJax.startup.promise;
+    await MathJax.typesetPromise([target]);
+  }).catch(err=>console.warn('MathJax typeset error:',err));
+  return mathQueue;
+}
+
+function renderDetail(){
+ const n=map.get(active),path=lineage(active).map(id=>map.get(id).label),isFull=detail.classList.contains('fullscreen');
+ const questionButtons=(n.questions||[]).map(q=>questionBank[q]?`<button class="qtag" data-q="${q}">${q}</button>`:`<span class="qtag">${q}</span>`).join('');
+ const cardButtons=(n.cards||[]).map(k=>popupBank[k]?`<button class="ctag" data-tag="${popupBank[k].tag||'看'}" data-card="${k}">${popupBank[k].button||k}</button>`:`<span class="ctag">${k}</span>`).join('');
+ const list=(items,ordered=false)=>items?.length?`<${ordered?'ol':'ul'}>${items.map(x=>`<li>${x}</li>`).join('')}</${ordered?'ol':'ul'}>`:'';
+ const overview=n.overview?.length?`<div class="box relation"><h3>本节点包含</h3>${list(n.overview)}</div>`:'';
+ const theorem=n.theorem?`<div class="box theorem"><h3>${n.theoremTitle||'定理 / 定义'}</h3>${n.theorem}</div>`:'';
+ const figure=n.figure?`<div class="box figure-box"><h3>教材图示</h3>${n.figure}</div>`:'';
+ const properties=n.properties?.length?`<div class="box relation"><h3>性质与结论</h3>${list(n.properties)}</div>`:'';
+ const method=n.method?.length?`<div class="box method"><h3>做题方法</h3>${list(n.method,true)}</div>`:'';
+ const relation=n.relation?`<div class="box relation"><h3>知识联系</h3><p>${n.relation}</p></div>`:'';
+ const warning=n.warning?`<div class="box warning"><h3>易错点</h3><p>${n.warning}</p></div>`:'';
+ clearMath(detail);
+ detail.scrollTop=0;
+ detail.innerHTML=`<div class="detail-head"><div><h2>${n.label}</h2><div class="trail">${path.join('　›　')}</div></div><div class="detail-actions"><button class="detail-action primary" id="detailFullBtn">${isFull?'返回知识树':'全屏讲解'}</button><button class="detail-action" id="detailCloseBtn">收起</button></div></div><div class="lead">${n.summary||'知识节点。'}</div>${overview}${theorem}${figure}${properties}${method}${relation}${warning}${cardButtons?`<div class="box relation"><h3>展开查看</h3>${cardButtons}</div>`:''}${questionButtons?`<div class="box"><h3>代表题</h3>${questionButtons}</div>`:''}`;
+ detail.querySelector('#detailFullBtn').onclick=()=>setDetailFullscreen(!detail.classList.contains('fullscreen'));
+ detail.querySelector('#detailCloseBtn').onclick=()=>{detail.classList.remove('fullscreen');detail.classList.add('hidden');syncDetailLayout();document.getElementById('detailBtn').textContent='显示讲解区';setTimeout(()=>autoFocus?focusBranch(active):fitAll(),80)};
+ detail.querySelectorAll('[data-q]').forEach(b=>b.onclick=e=>{e.stopPropagation();openQuestion(b.dataset.q)});
+ detail.querySelectorAll('[data-card]').forEach(b=>b.onclick=e=>{e.stopPropagation();openCard(b.dataset.card)});
+ requestAnimationFrame(()=>typesetMath(detail));
+}
+
+function openOverlay(entry,key,nodeId=null,mode='question'){
+ if(!entry)return;
+ if(nodeId){const p=parents.get(nodeId);if(p&&map.has(p)&&active!==p){history.push(active);active=p;render();if(autoFocus)setTimeout(()=>focusBranch(p),50)}}
+ currentQuestion=key;questionSource.textContent=entry.source||key;questionTitle.textContent=entry.title||key;
+ questionPanel.scrollTop=0;clearMath(questionBody);questionBody.innerHTML=entry.body||'';
+ questionOpen=true;questionOpenedAt=Date.now();questionStage.dataset.mode=m
+
+===== PATTERN 'function\\s+setDetailFullscreen\\s*\\(' count=1 =====
+
+--- occurrence 1 at 2728478 ---
+(n.id)&&n.id!==active&&!lineage(active).includes(n.id));
+   requestAnimationFrame(()=>{el.classList.remove('entering');el.style.left=p.x+'px';el.style.top=p.y+'px'});
+ });
+ renderEdges();renderDetail();renderNav();renderDock();syncDetailLayout();applyView();requestAnimationFrame(()=>typesetMath(nodeLayer));
+}
+function renderEdges(){const newKeys=new Set();let html='';visible.forEach(n=>{if(!(n.children?.length&&expanded.has(n.id)))return;n.children.forEach(c=>{if(!pos[c.id])return;const a=pos[n.id],b=pos[c.id],sx=a.x+W,sy=a.y,ex=b.x,ey=b.y,m=(sx+ex)/2,key=n.id+'>'+c.id;newKeys.add(key);const cls=['pathline'];if(lineage(active).includes(n.id)&&lineage(active).includes(c.id))cls.push('on-path');else if(active!=='root'&&focusSet.has(n.id)&&focusSet.has(c.id))cls.push('context');else if(active!=='root')cls.push('dim');if(!edgeKeys.has(key))cls.push('new');html+=`<path d="M ${sx} ${sy} C ${m} ${sy}, ${m} ${ey}, ${ex} ${ey}" class="${cls.join(' ')}"/>`})});svg.innerHTML=html;edgeKeys.clear();newKeys.forEach(k=>edgeKeys.add(k))}
+function selectNode(id,push=true){if(!map.has(id))return;if(push&&id!==active)history.push(active);active=id;const n=map.get(id);if(n.children?.length&&!expanded.has(id))expanded.add(id);render();if(autoFocus)setTimeout(()=>focusBranch(id),60);showChip(`聚焦：${n.label}`)}
+function toggleNode(id){const n=map.get(id);if(!n.children?.length)return;if(expanded.has(id)){expanded.delete(id);if(active!==id&&isDesc(active,id))active=id}else expanded.add(id);render();if(autoFocus)setTimeout(()=>focusBranch(active),70)}
+function isDesc(id,root){let x=id;while(x){if(x===root)return true;x=parents.get(x)}return false}
+function boundsFor(ids){const arr=[...ids].filter(id=>pos[id]);if(!arr.length)return null;return {minx:Math.min(...arr.map(id=>pos[id].x)),maxx:Math.max(...arr.map(id=>pos[id].x+W)),miny:Math.min(...arr.map(id=>pos[id].y-H/2)),maxy:Math.max(...arr.map(id=>pos[id].y+H/2))}}
+function applyView(manual=false){world.classList.toggle('manual',manual);world.style.transform=`translate(${view.x}px,${view.y}px) scale(${view.s})`}
+function detailReserve(){if(detail.classList.contains('hidden')||detail.classList.contains('fullscreen'))return 28;const portrait=matchMedia('(pointer:coarse) and (max-width:980px) and (orientation:portrait)').matches;const cap=portrait?.53:.48;return Math.min(detail.offsetWidth+32,viewport.clientWidth*cap)}
+function syncDetailLayout(){contextDock.style.right=detail.classList.contains('hidden')?'20px':`calc(${detail.offsetWidth}px + 36px)`;viewport.classList.toggle('detail-full',detail.classList.contains('fullscreen'))}
+function setDetailFullscreen(on){detail.classList.toggle('fullscreen',on);syncDetailLayout();renderDetail();setTimeout(()=>on?null:(autoFocus?focusBranch(active):fitAll()),80)}
+function fitAll(){const b=boundsFor(new Set(visible.map(n=>n.id)));if(!b)return;const vw=viewport.clientWidth-detailReserve(),vh=viewport.clientHeight-115;view.s=Math.min(1.05,(vw-120)/(b.maxx-b.minx),(vh-90)/(b.maxy-b.miny));view.x=45+(vw-(b.maxx-b.minx)*view.s)/2-b.minx*view.s;view.y=35+(vh-(b.maxy-b.miny)*view.s)/2-b.miny*view.s;applyView(false)}
+function focusBranch(id){if(id==='root'){fitAll();return}const ids=buildZoomSet(id),b=boundsFor(ids);if(!b)return;const cardW=detailReserve(),vw=viewport.clientWidth-cardW,vh=viewport.clientHeight-112;let s=Math.min(1.55,(vw-88)/(b.maxx-b.minx),(vh-72)/(b.maxy-b.miny));s=Math.max(.72,s);view.s=s;view.x=52+(vw-(b.maxx-b.minx)*s)/2-b.minx*s;view.y=22+(vh-(b.maxy-b.miny)*s)/2-b.miny*s;applyView(false)}
+function back(){if(history.length){const id=history.pop();active=id;render();if(autoFocus)setTimeout(()=>focusBranch(id),50)}else if(parents.has(active)){active=parents.get(active);render();if(autoFocus)setTimeout(()=>focusBranch(active),50)}}
+
+let mathQueue=Promise.resolve();
+function clearMath(target){
+  if(!target || !window.MathJax || !MathJax.typesetClear) return;
+  try{MathJax.typesetClear([target]);}catch(_e){}
+}
+function typesetMath(target){
+  if(!target) return Promise.resolve();
+  mathQueue=mathQueue.then(async()=>{
+    let tries=0;
+    while((!window.MathJax || !MathJax.typesetPromise) && tries<80){await new Promise(r=>setTimeout(r,50));tries++;}
+    if(!window.MathJax || !MathJax.typesetPromise) return;
+    if(MathJax.startup?.promise) await MathJax.startup.promise;
+    await MathJax.typesetPromise([target]);
+  }).catch(err=>console.warn('MathJax typeset error:',err));
+  return mathQueue;
+}
+
+function renderDetail(){
+ const n=map.get(active),path=lineage(active).map(id=>map.get(id).label),isFull=detail.classList.contains('fullscreen');
+ const questionButtons=(n.questions||[]).map(q=>questionBank[q]?`<button class="qtag" data-q="${q}">${q}</button>`:`<span class="qtag">${q}</span>`).join('');
+ const cardButtons=(n.cards||[]).map(k=>popupBank[k]?`<button class="ctag" data-tag="${popupBank[k].tag||'看'}" data-card="${k}">${popupBank[k].button||k}</button>`:`<span class="ctag">${k}</span>`).join('');
+ const list=(items,ordered=false)=>items?.length?`<${ordered?'ol':'ul'}>${items.map(x=>`<li>${x}</li>`).join('')}</${ordered?'ol':'ul'}>`:'';
+ const overview=n.overview?.length?`<div class="box relation"><h3>本节点包含</h3>${list(n.overview)}</div>`:'';
+ const theorem=n.theorem?`<div class="box theorem"><h3>${n.theoremTitle||'定理 / 定义'}</h3>${n.theorem}</div>`:'';
+ const figure=n.figure?`<div class="box figure-box"><h3>教材图示</h3>${n.figure}</div>`:'';
+ const properties=n.properties?.length?`<div class="box relation"><h3>性质与结论</h3>${list(n.properties)}</div>`:'';
+ const method=n.method?.length?`<div class="box method"><h3>做题方法</h3>${list(n.method,true)}</div>`:'';
+ const relation=n.relation?`<div class="box relation"><h3>知识联系</h3><p>${n.relation}</p></div>`:'';
+ const warning=n.warning?`<div class="box warning"><h3>易错点</h3><p>${n.warning}</p></div>`:'';
+ clearMath(detail);
+ detail.scrollTop=0;
+ detail.innerHTML=`<div class="detail-head"><div><h2>${n.label}</h2><div class="trail">${path.join('　›　')}</div></div><div class="detail-actions"><button class="detail-action primary" id="detailFullBtn">${isFull?'返回知识树':'全屏讲解'}</button><button class="detail-action" id="detailCloseBtn">收起</button></div></div><div class="lead">${n.summary||'知识节点。'}</div>${overview}${theorem}${figure}${properties}${method}${relation}${warning}${cardButtons?`<div class="box relation"><h3>展开查看</h3>${cardButtons}</div>`:''}${questionButtons?`<div class="box"><h3>代表题</h3>${questionButtons}</div>`:''}`;
+ detail.querySelector('#detailFullBtn').onclick=()=>setDetailFullscreen(!detail.classList.contains('fullscreen'));
+ detail.querySelector('#detailCloseBtn').onclick=()=>{detail.classList.remove('fullscreen');detail.classList.add('hidden');syncDetailLayout();document.getElementById('detailBtn').textContent='显示讲解区';setTimeout(()=>autoFocus?focusBranch(active):fitAll(),80)};
+ detail.querySelectorAll('[data-q]').forEach(b=>b.onclick=e=>{e.stopPropagation();openQuestion(b.dataset.q)});
+ detail.querySelectorAll('[data-card]').forEach(b=>b.onclick=e=>{e.stopPropagation();openCard(b.dataset.card)});
+ requestAnimationFrame(()=>typesetMath(detail));
+}
+
+function openOverlay(entry,key,nodeId=null,mode='question'){
+ if(!entry)return;
+ if(nodeId){const p=parents.get(nodeId);if(p&&map.has(p)&&active!==p){history.push(active);active=p;render();if(autoFocus)setTimeout(()=>focusBranch(p),50)}}
+ currentQuestion=key;questionSource.textContent=entry.source||key;questionTitle.textContent=entry.title||key;
+ questionPanel.scrollTop=0;clearMath(questionBody);questionBody.innerHTML=entry.body||'';
+ questionOpen=true;questionOpenedAt=Date.now();questionStage.dataset.mode=mode;questionStage.classList.add('show');questionStage.setAttribute('aria-hidden','false');viewport.classList.add('question-open');
+ requestAnimationFrame(()=>typesetMath(questionBody));
+}
+function openQuestion(key,nodeI
+
+===== PATTERN 'detailBtn\\.onclick' count=0 =====
+
+===== PATTERN 'getElementById\\([\'\\"]detailBtn[\'\\"]\\)' count=3 =====
+
+--- occurrence 1 at 2732591 ---
+athJax.typesetPromise) && tries<80){await new Promise(r=>setTimeout(r,50));tries++;}
+    if(!window.MathJax || !MathJax.typesetPromise) return;
+    if(MathJax.startup?.promise) await MathJax.startup.promise;
+    await MathJax.typesetPromise([target]);
+  }).catch(err=>console.warn('MathJax typeset error:',err));
+  return mathQueue;
+}
+
+function renderDetail(){
+ const n=map.get(active),path=lineage(active).map(id=>map.get(id).label),isFull=detail.classList.contains('fullscreen');
+ const questionButtons=(n.questions||[]).map(q=>questionBank[q]?`<button class="qtag" data-q="${q}">${q}</button>`:`<span class="qtag">${q}</span>`).join('');
+ const cardButtons=(n.cards||[]).map(k=>popupBank[k]?`<button class="ctag" data-tag="${popupBank[k].tag||'看'}" data-card="${k}">${popupBank[k].button||k}</button>`:`<span class="ctag">${k}</span>`).join('');
+ const list=(items,ordered=false)=>items?.length?`<${ordered?'ol':'ul'}>${items.map(x=>`<li>${x}</li>`).join('')}</${ordered?'ol':'ul'}>`:'';
+ const overview=n.overview?.length?`<div class="box relation"><h3>本节点包含</h3>${list(n.overview)}</div>`:'';
+ const theorem=n.theorem?`<div class="box theorem"><h3>${n.theoremTitle||'定理 / 定义'}</h3>${n.theorem}</div>`:'';
+ const figure=n.figure?`<div class="box figure-box"><h3>教材图示</h3>${n.figure}</div>`:'';
+ const properties=n.properties?.length?`<div class="box relation"><h3>性质与结论</h3>${list(n.properties)}</div>`:'';
+ const method=n.method?.length?`<div class="box method"><h3>做题方法</h3>${list(n.method,true)}</div>`:'';
+ const relation=n.relation?`<div class="box relation"><h3>知识联系</h3><p>${n.relation}</p></div>`:'';
+ const warning=n.warning?`<div class="box warning"><h3>易错点</h3><p>${n.warning}</p></div>`:'';
+ clearMath(detail);
+ detail.scrollTop=0;
+ detail.innerHTML=`<div class="detail-head"><div><h2>${n.label}</h2><div class="trail">${path.join('　›　')}</div></div><div class="detail-actions"><button class="detail-action primary" id="detailFullBtn">${isFull?'返回知识树':'全屏讲解'}</button><button class="detail-action" id="detailCloseBtn">收起</button></div></div><div class="lead">${n.summary||'知识节点。'}</div>${overview}${theorem}${figure}${properties}${method}${relation}${warning}${cardButtons?`<div class="box relation"><h3>展开查看</h3>${cardButtons}</div>`:''}${questionButtons?`<div class="box"><h3>代表题</h3>${questionButtons}</div>`:''}`;
+ detail.querySelector('#detailFullBtn').onclick=()=>setDetailFullscreen(!detail.classList.contains('fullscreen'));
+ detail.querySelector('#detailCloseBtn').onclick=()=>{detail.classList.remove('fullscreen');detail.classList.add('hidden');syncDetailLayout();document.getElementById('detailBtn').textContent='显示讲解区';setTimeout(()=>autoFocus?focusBranch(active):fitAll(),80)};
+ detail.querySelectorAll('[data-q]').forEach(b=>b.onclick=e=>{e.stopPropagation();openQuestion(b.dataset.q)});
+ detail.querySelectorAll('[data-card]').forEach(b=>b.onclick=e=>{e.stopPropagation();openCard(b.dataset.card)});
+ requestAnimationFrame(()=>typesetMath(detail));
+}
+
+function openOverlay(entry,key,nodeId=null,mode='question'){
+ if(!entry)return;
+ if(nodeId){const p=parents.get(nodeId);if(p&&map.has(p)&&active!==p){history.push(active);active=p;render();if(autoFocus)setTimeout(()=>focusBranch(p),50)}}
+ currentQuestion=key;questionSource.textContent=entry.source||key;questionTitle.textContent=entry.title||key;
+ questionPanel.scrollTop=0;clearMath(questionBody);questionBody.innerHTML=entry.body||'';
+ questionOpen=true;questionOpenedAt=Date.now();questionStage.dataset.mode=mode;questionStage.classList.add('show');questionStage.setAttribute('aria-hidden','false');viewport.classList.add('question-open');
+ requestAnimationFrame(()=>typesetMath(questionBody));
+}
+function openQuestion(key,nodeId=null){openOverlay(questionBank[key],key,nodeId,'question')}
+function openCard(key,nodeId=null){openOverlay(popupBank[key],key,nodeId,'card')}
+
+function closeQuestion(){
+ if(!questionOpen)return;questionOpen=false;currentQuestion=null;questionStage.classList.remove('show');questionStage.removeAttribute('data-mode');questionStage.setAttribute('aria-hidden','true');viewport.classList.remove('question-open');
+ detail.classList.remove('hidden','fullscreen');document.getElementById('detailBtn').textContent='收起讲解区';renderDetail();syncDetailLayout();setTimeout(()=>autoFocus?focusBranch(active):fitAll(),70);
+}
+questionPanel.addEventListener('click',e=>{if(e.target.closest('.question-close'))return;if(Date.now()-questionOpenedAt<280)return;closeQuestion()});
+questionStage.addEventListener('click',e=>{if(e.target!==questionStage||Date.now()-questionOpenedAt<280)return;closeQuestion()});
+document.getElementById('questionClose').addEventListener('click',e=>{e.stopPropagation();closeQuestion()});
+function renderNav(){const line=lineage(active);crumbs.innerHTML=line.map((id,i)=>`<button class="crumb ${id===active?'current':''}" data-id="${id}">${i?'› ':''}${map.get(id).label}</button>`).join('');crumbs.querySelectorAll('button').forEach(b=>b.onclick=()=>selectNode(b.dataset.id,true));chapterSwitch.innerHTML=tree.children.map(c=>`<button class="chapter-pill ${isDesc(active,c.id)?'active':''}" data-id="${c.id}">${c.label.replace('第二章：','').replace('第三章：','')}</button>`).join('');chapterSwitch.querySelectorAll('button').forEach(b=>b.onclick=()=>selectNode(b.dataset.id,true));document.getElementById('backBtn').disabled=active==='root'&&!history.length}
+function renderDock(){const p=parents.get(active),siblings=p?(map.get(p).children||[]):[tree],children=map.get(active).children||[];contextDock.innerHTML=`<div class="dock-group"><span class="dock-title">同级切换</span><div class="dock-scroll">${siblings.map(n=>`<button class="dock-btn ${n.id===active?'active':''}" data-id="${n.id}">${n.label}</button>`).join('')}</div></div>${children.length?`<div class="dock-divider"></div><div class="dock-group"><span class="dock-title">下一层</span><div class="dock-scroll">${children.map(n=>`<button class="dock-btn" data-id="${n.id}">${n.label}</button>`).join('')}</div></div>`:''}`;contextDock.querySelectorAll('.dock-btn').forEach(b=>b.onclick=()=>selectNode(b.dataset.id,true))}
+function showChip(text){focusChip.textContent=text;focusChip.classList.add('show');clearTimeout(showChip.t);showChip.t=setTimeout(()=>focusChip.classList.remove('show'),900)}
+const gesturePointers=new Map();let pinchState=null;
+function viewportPoint(e){const r=viewport.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
+function startPinch(){const pts=[...gesturePointers.values()].slice(0,2);if(pts.length<2)return;const dx=pts[1].x-pts[0].x,dy=pts[1].y-pts[0].y;pinchState={distance:Math.max(24,Math.hypot(dx,dy)),scale:view.s,viewX:view.x,viewY:view.y,mid:{x:(pts[0].x+pts[1].x)/2,y:(pts[0].y+pts[1].y)/2}}}
+viewport.addEventListener('pointerdown',e=>{
+ if(e.target.closest('.detail,.context-dock,.legend,.question-stage'))return;
+ const onNode=e.target.closest('.node');
+ if(onNode&&gesturePointers.size===0)return;
+ if(e.pointerType==='mouse'){
+   if(onNode)return;dragging=true;last={x:e.clientX,y:e.clientY};viewport.classList.add('dragging');viewport.setPointerCapture(e.pointerId);world.classList.add('manual');return;
+ }
+ gesturePointers.set(e.pointerId,viewportPoint(e));try{viewport.setPointerCapture(e.pointerId)}catch(_e){}
+ world.classList.add('manual');
+ if(gesturePointers.size===1){dragging=true;last=gesturePointers.get(e.pointerId);viewport.classList.add('dragging')}
+ if(gesturePointers.size===2){dragging=false;viewport.classList.remove('dragging');startPinch()}
+});
+viewport.addEventListener('pointermove',e=>{
+ if(e.pointerType==='mouse'){if(!dragging)return;view.x+=e.clientX-last.x;view.y+=e.clientY-last.y;last={x:e.clientX,y:e.clientY};applyView(true);return}
+ if(!gesturePointers.has(e.pointerId))return;gesturePointers.set(e.pointerId,viewportPoint(e));
+ if(gesturePointers.si
+
+--- occurrence 2 at 2734175 ---
+${n.relation}</p></div>`:'';
+ const warning=n.warning?`<div class="box warning"><h3>易错点</h3><p>${n.warning}</p></div>`:'';
+ clearMath(detail);
+ detail.scrollTop=0;
+ detail.innerHTML=`<div class="detail-head"><div><h2>${n.label}</h2><div class="trail">${path.join('　›　')}</div></div><div class="detail-actions"><button class="detail-action primary" id="detailFullBtn">${isFull?'返回知识树':'全屏讲解'}</button><button class="detail-action" id="detailCloseBtn">收起</button></div></div><div class="lead">${n.summary||'知识节点。'}</div>${overview}${theorem}${figure}${properties}${method}${relation}${warning}${cardButtons?`<div class="box relation"><h3>展开查看</h3>${cardButtons}</div>`:''}${questionButtons?`<div class="box"><h3>代表题</h3>${questionButtons}</div>`:''}`;
+ detail.querySelector('#detailFullBtn').onclick=()=>setDetailFullscreen(!detail.classList.contains('fullscreen'));
+ detail.querySelector('#detailCloseBtn').onclick=()=>{detail.classList.remove('fullscreen');detail.classList.add('hidden');syncDetailLayout();document.getElementById('detailBtn').textContent='显示讲解区';setTimeout(()=>autoFocus?focusBranch(active):fitAll(),80)};
+ detail.querySelectorAll('[data-q]').forEach(b=>b.onclick=e=>{e.stopPropagation();openQuestion(b.dataset.q)});
+ detail.querySelectorAll('[data-card]').forEach(b=>b.onclick=e=>{e.stopPropagation();openCard(b.dataset.card)});
+ requestAnimationFrame(()=>typesetMath(detail));
+}
+
+function openOverlay(entry,key,nodeId=null,mode='question'){
+ if(!entry)return;
+ if(nodeId){const p=parents.get(nodeId);if(p&&map.has(p)&&active!==p){history.push(active);active=p;render();if(autoFocus)setTimeout(()=>focusBranch(p),50)}}
+ currentQuestion=key;questionSource.textContent=entry.source||key;questionTitle.textContent=entry.title||key;
+ questionPanel.scrollTop=0;clearMath(questionBody);questionBody.innerHTML=entry.body||'';
+ questionOpen=true;questionOpenedAt=Date.now();questionStage.dataset.mode=mode;questionStage.classList.add('show');questionStage.setAttribute('aria-hidden','false');viewport.classList.add('question-open');
+ requestAnimationFrame(()=>typesetMath(questionBody));
+}
+function openQuestion(key,nodeId=null){openOverlay(questionBank[key],key,nodeId,'question')}
+function openCard(key,nodeId=null){openOverlay(popupBank[key],key,nodeId,'card')}
+
+function closeQuestion(){
+ if(!questionOpen)return;questionOpen=false;currentQuestion=null;questionStage.classList.remove('show');questionStage.removeAttribute('data-mode');questionStage.setAttribute('aria-hidden','true');viewport.classList.remove('question-open');
+ detail.classList.remove('hidden','fullscreen');document.getElementById('detailBtn').textContent='收起讲解区';renderDetail();syncDetailLayout();setTimeout(()=>autoFocus?focusBranch(active):fitAll(),70);
+}
+questionPanel.addEventListener('click',e=>{if(e.target.closest('.question-close'))return;if(Date.now()-questionOpenedAt<280)return;closeQuestion()});
+questionStage.addEventListener('click',e=>{if(e.target!==questionStage||Date.now()-questionOpenedAt<280)return;closeQuestion()});
+document.getElementById('questionClose').addEventListener('click',e=>{e.stopPropagation();closeQuestion()});
+function renderNav(){const line=lineage(active);crumbs.innerHTML=line.map((id,i)=>`<button class="crumb ${id===active?'current':''}" data-id="${id}">${i?'› ':''}${map.get(id).label}</button>`).join('');crumbs.querySelectorAll('button').forEach(b=>b.onclick=()=>selectNode(b.dataset.id,true));chapterSwitch.innerHTML=tree.children.map(c=>`<button class="chapter-pill ${isDesc(active,c.id)?'active':''}" data-id="${c.id}">${c.label.replace('第二章：','').replace('第三章：','')}</button>`).join('');chapterSwitch.querySelectorAll('button').forEach(b=>b.onclick=()=>selectNode(b.dataset.id,true));document.getElementById('backBtn').disabled=active==='root'&&!history.length}
+function renderDock(){const p=parents.get(active),siblings=p?(map.get(p).children||[]):[tree],children=map.get(active).children||[];contextDock.innerHTML=`<div class="dock-group"><span class="dock-title">同级切换</span><div class="dock-scroll">${siblings.map(n=>`<button class="dock-btn ${n.id===active?'active':''}" data-id="${n.id}">${n.label}</button>`).join('')}</div></div>${children.length?`<div class="dock-divider"></div><div class="dock-group"><span class="dock-title">下一层</span><div class="dock-scroll">${children.map(n=>`<button class="dock-btn" data-id="${n.id}">${n.label}</button>`).join('')}</div></div>`:''}`;contextDock.querySelectorAll('.dock-btn').forEach(b=>b.onclick=()=>selectNode(b.dataset.id,true))}
+function showChip(text){focusChip.textContent=text;focusChip.classList.add('show');clearTimeout(showChip.t);showChip.t=setTimeout(()=>focusChip.classList.remove('show'),900)}
+const gesturePointers=new Map();let pinchState=null;
+function viewportPoint(e){const r=viewport.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
+function startPinch(){const pts=[...gesturePointers.values()].slice(0,2);if(pts.length<2)return;const dx=pts[1].x-pts[0].x,dy=pts[1].y-pts[0].y;pinchState={distance:Math.max(24,Math.hypot(dx,dy)),scale:view.s,viewX:view.x,viewY:view.y,mid:{x:(pts[0].x+pts[1].x)/2,y:(pts[0].y+pts[1].y)/2}}}
+viewport.addEventListener('pointerdown',e=>{
+ if(e.target.closest('.detail,.context-dock,.legend,.question-stage'))return;
+ const onNode=e.target.closest('.node');
+ if(onNode&&gesturePointers.size===0)return;
+ if(e.pointerType==='mouse'){
+   if(onNode)return;dragging=true;last={x:e.clientX,y:e.clientY};viewport.classList.add('dragging');viewport.setPointerCapture(e.pointerId);world.classList.add('manual');return;
+ }
+ gesturePointers.set(e.pointerId,viewportPoint(e));try{viewport.setPointerCapture(e.pointerId)}catch(_e){}
+ world.classList.add('manual');
+ if(gesturePointers.size===1){dragging=true;last=gesturePointers.get(e.pointerId);viewport.classList.add('dragging')}
+ if(gesturePointers.size===2){dragging=false;viewport.classList.remove('dragging');startPinch()}
+});
+viewport.addEventListener('pointermove',e=>{
+ if(e.pointerType==='mouse'){if(!dragging)return;view.x+=e.clientX-last.x;view.y+=e.clientY-last.y;last={x:e.clientX,y:e.clientY};applyView(true);return}
+ if(!gesturePointers.has(e.pointerId))return;gesturePointers.set(e.pointerId,viewportPoint(e));
+ if(gesturePointers.size>=2){if(!pinchState)startPinch();const pts=[...gesturePointers.values()].slice(0,2),dx=pts[1].x-pts[0].x,dy=pts[1].y-pts[0].y,dist=Math.max(24,Math.hypot(dx,dy)),mid={x:(pts[0].x+pts[1].x)/2,y:(pts[0].y+pts[1].y)/2};const ns=Math.max(.36,Math.min(1.95,pinchState.scale*dist/pinchState.distance)),wx=(pinchState.mid.x-pinchState.viewX)/pinchState.scale,wy=(pinchState.mid.y-pinchState.viewY)/pinchState.scale;view.s=ns;view.x=mid.x-wx*ns;view.y=mid.y-wy*ns;applyView(true);return}
+ if(dragging){const p=gesturePointers.get(e.pointerId);view.x+=p.x-last.x;view.y+=p.y-last.y;last=p;applyView(true)}
+});
+function finishPointer(e){
+ if(e.pointerType==='mouse'){dragging=false;viewport.classList.remove('dragging');return}
+ gesturePointers.delete(e.pointerId);pinchState=null;
+ if(gesturePointers.size===1){const p=[...gesturePointers.values()][0];dragging=true;last=p;viewport.classList.add('dragging')}
+ else{dragging=false;viewport.classList.remove('dragging')}
+}
+viewport.addEventListener('pointerup',finishPointer);viewport.addEventListener('pointercancel',finishPointer);
+viewport.addEventListener('wheel',e=>{if(e.target.closest('.detail,.question-panel,.context-dock'))return;e.preventDefault();const r=viewport.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top,old=view.s,ns=Math.max(.36,Math.min(1.95,old*(e.deltaY<0?1.1:.91)));view.x=mx-(mx-view.x)*(ns/old);view.y=my-(my-view.y)*(ns/old);view.s=ns;applyView(true)},{passive:false});
+viewport.addEventListener('dblclick',e=>{if(e.target.closest('.node,.detail,.context-dock,.question-stage'))return;back()});
+docu
+
+--- occurrence 3 at 2739812 ---
+interCapture(e.pointerId)}catch(_e){}
+ world.classList.add('manual');
+ if(gesturePointers.size===1){dragging=true;last=gesturePointers.get(e.pointerId);viewport.classList.add('dragging')}
+ if(gesturePointers.size===2){dragging=false;viewport.classList.remove('dragging');startPinch()}
+});
+viewport.addEventListener('pointermove',e=>{
+ if(e.pointerType==='mouse'){if(!dragging)return;view.x+=e.clientX-last.x;view.y+=e.clientY-last.y;last={x:e.clientX,y:e.clientY};applyView(true);return}
+ if(!gesturePointers.has(e.pointerId))return;gesturePointers.set(e.pointerId,viewportPoint(e));
+ if(gesturePointers.size>=2){if(!pinchState)startPinch();const pts=[...gesturePointers.values()].slice(0,2),dx=pts[1].x-pts[0].x,dy=pts[1].y-pts[0].y,dist=Math.max(24,Math.hypot(dx,dy)),mid={x:(pts[0].x+pts[1].x)/2,y:(pts[0].y+pts[1].y)/2};const ns=Math.max(.36,Math.min(1.95,pinchState.scale*dist/pinchState.distance)),wx=(pinchState.mid.x-pinchState.viewX)/pinchState.scale,wy=(pinchState.mid.y-pinchState.viewY)/pinchState.scale;view.s=ns;view.x=mid.x-wx*ns;view.y=mid.y-wy*ns;applyView(true);return}
+ if(dragging){const p=gesturePointers.get(e.pointerId);view.x+=p.x-last.x;view.y+=p.y-last.y;last=p;applyView(true)}
+});
+function finishPointer(e){
+ if(e.pointerType==='mouse'){dragging=false;viewport.classList.remove('dragging');return}
+ gesturePointers.delete(e.pointerId);pinchState=null;
+ if(gesturePointers.size===1){const p=[...gesturePointers.values()][0];dragging=true;last=p;viewport.classList.add('dragging')}
+ else{dragging=false;viewport.classList.remove('dragging')}
+}
+viewport.addEventListener('pointerup',finishPointer);viewport.addEventListener('pointercancel',finishPointer);
+viewport.addEventListener('wheel',e=>{if(e.target.closest('.detail,.question-panel,.context-dock'))return;e.preventDefault();const r=viewport.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top,old=view.s,ns=Math.max(.36,Math.min(1.95,old*(e.deltaY<0?1.1:.91)));view.x=mx-(mx-view.x)*(ns/old);view.y=my-(my-view.y)*(ns/old);view.s=ns;applyView(true)},{passive:false});
+viewport.addEventListener('dblclick',e=>{if(e.target.closest('.node,.detail,.context-dock,.question-stage'))return;back()});
+document.getElementById('backBtn').onclick=back;document.getElementById('homeBtn').onclick=()=>{history=[];active='root';render();fitAll()};document.getElementById('fitBtn').onclick=fitAll;document.getElementById('autoFocusBtn').onclick=e=>{autoFocus=!autoFocus;e.currentTarget.classList.toggle('active',autoFocus);e.currentTarget.textContent=`自动聚焦：${autoFocus?'开':'关'}`;if(autoFocus)focusBranch(active)};document.getElementById('detailBtn').onclick=e=>{if(detail.classList.contains('fullscreen'))detail.classList.remove('fullscreen');detail.classList.toggle('hidden');e.currentTarget.textContent=detail.classList.contains('hidden')?'显示讲解区':'收起讲解区';syncDetailLayout();renderDetail();setTimeout(()=>autoFocus?focusBranch(active):fitAll(),80)};
+document.addEventListener('keydown',e=>{
+ if(questionOpen){if(e.key==='Escape'||e.key===' '||e.key==='Enter'||e.key==='ArrowRight'){e.preventDefault();closeQuestion()}return}
+ if(e.key==='Escape'&&detail.classList.contains('fullscreen')){e.preventDefault();setDetailFullscreen(false);return}
+ if(e.key==='Escape'||e.key==='Backspace'){e.preventDefault();back()}
+ if(e.key.toLowerCase()==='h'){history=[];active='root';render();fitAll()}
+ if(e.key==='ArrowLeft')back();
+ if(e.key==='ArrowRight'){const c=map.get(active).children?.[0];if(c)selectNode(c.id,true)}
+ if(e.key==='ArrowUp'||e.key==='ArrowDown'){const p=parents.get(active);if(!p)return;const a=map.get(p).children||[],i=a.findIndex(n=>n.id===active),j=e.key==='ArrowUp'?Math.max(0,i-1):Math.min(a.length-1,i+1);if(j!==i)selectNode(a[j].id,true)}
+});
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));let touring=false;document.getElementById('tourBtn').onclick=async()=>{if(touring)return;touring=true;history=[];expanded.clear();expanded.add('root');active='root';render();fitAll();const seq=[['ch2','进入第二章，同时保留整棵树关系'],['limit-properties','把极限基本性质展开成可见分支'],['limit-methods','查看完整的求极限方法体系'],['method-derivative','第二章极限与第三章导数定义建立联系'],['ch3','用顶部章节按钮快速切换到第三章'],['derivative-core','进入一点处导数主线']];for(const [id,msg] of seq){tourTip.textContent=msg;tourTip.classList.add('show');await sleep(700);selectNode(id,true);await sleep(1250)}tourTip.classList.remove('show');touring=false};
+let responsiveTimer=null;function refitResponsive(){clearTimeout(responsiveTimer);responsiveTimer=setTimeout(()=>{syncDetailLayout();autoFocus?focusBranch(active):fitAll()},140)}
+window.addEventListener('resize',refitResponsive);window.addEventListener('orientationchange',refitResponsive);if(window.visualViewport)visualViewport.addEventListener('resize',refitResponsive);
+render();syncDetailLayout();setTimeout(fitAll,100);setTimeout(()=>typesetMath(document.body),180);const demoQuestion=new URLSearchParams(location.search).get('question');if(demoQuestion&&questionBank[demoQuestion])setTimeout(()=>openQuestion(demoQuestion),650);
+</script>
+</body>
+</html>
