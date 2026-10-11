@@ -17,52 +17,45 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Extract relevant source contexts
+      - name: Extract focused layout contexts
         shell: bash
         run: |
           python - <<'PY'
           from pathlib import Path
           import re
 
-          source = Path('calculus-tree/index.html')
-          text = source.read_text(encoding='utf-8')
-          terms = [
-              '平板适配预备版',
-              '全屏讲解',
-              '收起',
-              '自动聚焦',
-              '显示整棵树',
-              '返回上一级',
-              '同级切换',
-              'detail',
-              'drawer',
-              'panel',
-              'sheet',
-          ]
-          out = []
-          out.append(f'length={len(text)}\n')
-          for term in terms:
-              positions = [m.start() for m in re.finditer(re.escape(term), text, flags=re.I)]
-              out.append(f'\n===== TERM {term!r} count={len(positions)} =====\n')
-              for n, pos in enumerate(positions[:30], 1):
-                  start = max(0, pos - 1800)
-                  end = min(len(text), pos + len(term) + 2400)
-                  snippet = text[start:end]
-                  out.append(f'\n--- occurrence {n} at {pos} ---\n')
-                  out.append(snippet)
-                  out.append('\n')
-          output = Path('.source-inspect/calculus-layout-report.txt')
-          output.parent.mkdir(parents=True, exist_ok=True)
-          output.write_text(''.join(out), encoding='utf-8')
+          text = Path('calculus-tree/index.html').read_text(encoding='utf-8')
+          output_dir = Path('.source-inspect/focused')
+          output_dir.mkdir(parents=True, exist_ok=True)
+
+          targets = {
+              'detail-css.txt': [r'\.detail\s*\{', r'\.detail\.hidden', r'\.detail\.fullscreen', r'\.detail-head', r'\.detail-actions'],
+              'detail-layout-js.txt': [r'function\s+syncDetailLayout\s*\(', r'function\s+setDetailFullscreen\s*\(', r'detailBtn\.onclick', r"getElementById\(['\"]detailBtn['\"]\)"],
+              'render-flow-js.txt': [r'function\s+renderDetail\s*\(', r'function\s+render\s*\(', r'function\s+select', r'active\s*='],
+              'responsive-css.txt': [r'@media\s*\([^)]*max-width', r'@media\s*\([^)]*orientation'],
+          }
+
+          for filename, patterns in targets.items():
+              parts = [f'length={len(text)}\n']
+              for pattern in patterns:
+                  matches = list(re.finditer(pattern, text, flags=re.I))
+                  parts.append(f'\n===== PATTERN {pattern!r} count={len(matches)} =====\n')
+                  for i, match in enumerate(matches[:12], 1):
+                      start = max(0, match.start() - 2600)
+                      end = min(len(text), match.end() + 5200)
+                      parts.append(f'\n--- occurrence {i} at {match.start()} ---\n')
+                      parts.append(text[start:end])
+                      parts.append('\n')
+              (output_dir / filename).write_text(''.join(parts), encoding='utf-8')
           PY
 
-      - name: Commit inspection report
+      - name: Commit focused inspection reports
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add .source-inspect/calculus-layout-report.txt
+          git add .source-inspect/focused
           if ! git diff --cached --quiet; then
-            git commit -m "chore: inspect calculus layout source"
+            git commit -m "chore: add focused calculus layout inspection"
             git push
           fi
