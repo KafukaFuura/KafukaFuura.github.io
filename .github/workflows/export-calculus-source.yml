@@ -1,0 +1,63 @@
+name: Export calculus source chunks
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/export-calculus-source.yml
+
+permissions:
+  contents: write
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Split the calculus page into reviewable chunks
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+
+          source = Path("calculus-tree/index.html")
+          text = source.read_text(encoding="utf-8")
+          output = Path(".source-export/calculus-tree")
+          output.mkdir(parents=True, exist_ok=True)
+
+          for old in output.glob("chunk-*.txt"):
+              old.unlink()
+
+          chunk_size = 18000
+          names = []
+          for index, start in enumerate(range(0, len(text), chunk_size)):
+              name = f"chunk-{index:03d}.txt"
+              (output / name).write_text(text[start:start + chunk_size], encoding="utf-8")
+              names.append(name)
+
+          manifest = {
+              "source": str(source),
+              "characters": len(text),
+              "chunk_size": chunk_size,
+              "chunks": names,
+          }
+          (output / "manifest.json").write_text(
+              json.dumps(manifest, ensure_ascii=False, indent=2),
+              encoding="utf-8",
+          )
+          PY
+
+      - name: Commit temporary source chunks
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .source-export/calculus-tree
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: export calculus source for maintenance"
+            git push
+          fi
