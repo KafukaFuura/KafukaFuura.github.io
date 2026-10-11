@@ -1,0 +1,49 @@
+ock.querySelectorAll('.dock-btn').forEach(b=>b.onclick=()=>selectNode(b.dataset.id,true))}
+function showChip(text){focusChip.textContent=text;focusChip.classList.add('show');clearTimeout(showChip.t);showChip.t=setTimeout(()=>focusChip.classList.remove('show'),900)}
+const gesturePointers=new Map();let pinchState=null;
+function viewportPoint(e){const r=viewport.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
+function startPinch(){const pts=[...gesturePointers.values()].slice(0,2);if(pts.length<2)return;const dx=pts[1].x-pts[0].x,dy=pts[1].y-pts[0].y;pinchState={distance:Math.max(24,Math.hypot(dx,dy)),scale:view.s,viewX:view.x,viewY:view.y,mid:{x:(pts[0].x+pts[1].x)/2,y:(pts[0].y+pts[1].y)/2}}}
+viewport.addEventListener('pointerdown',e=>{
+ if(e.target.closest('.detail,.context-dock,.legend,.question-stage'))return;
+ const onNode=e.target.closest('.node');
+ if(onNode&&gesturePointers.size===0)return;
+ if(e.pointerType==='mouse'){
+   if(onNode)return;dragging=true;last={x:e.clientX,y:e.clientY};viewport.classList.add('dragging');viewport.setPointerCapture(e.pointerId);world.classList.add('manual');return;
+ }
+ gesturePointers.set(e.pointerId,viewportPoint(e));try{viewport.setPointerCapture(e.pointerId)}catch(_e){}
+ world.classList.add('manual');
+ if(gesturePointers.size===1){dragging=true;last=gesturePointers.get(e.pointerId);viewport.classList.add('dragging')}
+ if(gesturePointers.size===2){dragging=false;viewport.classList.remove('dragging');startPinch()}
+});
+viewport.addEventListener('pointermove',e=>{
+ if(e.pointerType==='mouse'){if(!dragging)return;view.x+=e.clientX-last.x;view.y+=e.clientY-last.y;last={x:e.clientX,y:e.clientY};applyView(true);return}
+ if(!gesturePointers.has(e.pointerId))return;gesturePointers.set(e.pointerId,viewportPoint(e));
+ if(gesturePointers.size>=2){if(!pinchState)startPinch();const pts=[...gesturePointers.values()].slice(0,2),dx=pts[1].x-pts[0].x,dy=pts[1].y-pts[0].y,dist=Math.max(24,Math.hypot(dx,dy)),mid={x:(pts[0].x+pts[1].x)/2,y:(pts[0].y+pts[1].y)/2};const ns=Math.max(.36,Math.min(1.95,pinchState.scale*dist/pinchState.distance)),wx=(pinchState.mid.x-pinchState.viewX)/pinchState.scale,wy=(pinchState.mid.y-pinchState.viewY)/pinchState.scale;view.s=ns;view.x=mid.x-wx*ns;view.y=mid.y-wy*ns;applyView(true);return}
+ if(dragging){const p=gesturePointers.get(e.pointerId);view.x+=p.x-last.x;view.y+=p.y-last.y;last=p;applyView(true)}
+});
+function finishPointer(e){
+ if(e.pointerType==='mouse'){dragging=false;viewport.classList.remove('dragging');return}
+ gesturePointers.delete(e.pointerId);pinchState=null;
+ if(gesturePointers.size===1){const p=[...gesturePointers.values()][0];dragging=true;last=p;viewport.classList.add('dragging')}
+ else{dragging=false;viewport.classList.remove('dragging')}
+}
+viewport.addEventListener('pointerup',finishPointer);viewport.addEventListener('pointercancel',finishPointer);
+viewport.addEventListener('wheel',e=>{if(e.target.closest('.detail,.question-panel,.context-dock'))return;e.preventDefault();const r=viewport.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top,old=view.s,ns=Math.max(.36,Math.min(1.95,old*(e.deltaY<0?1.1:.91)));view.x=mx-(mx-view.x)*(ns/old);view.y=my-(my-view.y)*(ns/old);view.s=ns;applyView(true)},{passive:false});
+viewport.addEventListener('dblclick',e=>{if(e.target.closest('.node,.detail,.context-dock,.question-stage'))return;back()});
+document.getElementById('backBtn').onclick=back;document.getElementById('homeBtn').onclick=()=>{history=[];active='root';render();fitAll()};document.getElementById('fitBtn').onclick=fitAll;document.getElementById('autoFocusBtn').onclick=e=>{autoFocus=!autoFocus;e.currentTarget.classList.toggle('active',autoFocus);e.currentTarget.textContent=`自动聚焦：${autoFocus?'开':'关'}`;if(autoFocus)focusBranch(active)};document.getElementById('detailBtn').onclick=e=>{if(detail.classList.contains('fullscreen'))detail.classList.remove('fullscreen');detail.classList.toggle('hidden');e.currentTarget.textContent=detail.classList.contains('hidden')?'显示讲解区':'收起讲解区';syncDetailLayout();renderDetail();setTimeout(()=>autoFocus?focusBranch(active):fitAll(),80)};
+document.addEventListener('keydown',e=>{
+ if(questionOpen){if(e.key==='Escape'||e.key===' '||e.key==='Enter'||e.key==='ArrowRight'){e.preventDefault();closeQuestion()}return}
+ if(e.key==='Escape'&&detail.classList.contains('fullscreen')){e.preventDefault();setDetailFullscreen(false);return}
+ if(e.key==='Escape'||e.key==='Backspace'){e.preventDefault();back()}
+ if(e.key.toLowerCase()==='h'){history=[];active='root';render();fitAll()}
+ if(e.key==='ArrowLeft')back();
+ if(e.key==='ArrowRight'){const c=map.get(active).children?.[0];if(c)selectNode(c.id,true)}
+ if(e.key==='ArrowUp'||e.key==='ArrowDown'){const p=parents.get(active);if(!p)return;const a=map.get(p).children||[],i=a.findIndex(n=>n.id===active),j=e.key==='ArrowUp'?Math.max(0,i-1):Math.min(a.length-1,i+1);if(j!==i)selectNode(a[j].id,true)}
+});
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));let touring=false;document.getElementById('tourBtn').onclick=async()=>{if(touring)return;touring=true;history=[];expanded.clear();expanded.add('root');active='root';render();fitAll();const seq=[['ch2','进入第二章，同时保留整棵树关系'],['limit-properties','把极限基本性质展开成可见分支'],['limit-methods','查看完整的求极限方法体系'],['method-derivative','第二章极限与第三章导数定义建立联系'],['ch3','用顶部章节按钮快速切换到第三章'],['derivative-core','进入一点处导数主线']];for(const [id,msg] of seq){tourTip.textContent=msg;tourTip.classList.add('show');await sleep(700);selectNode(id,true);await sleep(1250)}tourTip.classList.remove('show');touring=false};
+let responsiveTimer=null;function refitResponsive(){clearTimeout(responsiveTimer);responsiveTimer=setTimeout(()=>{syncDetailLayout();autoFocus?focusBranch(active):fitAll()},140)}
+window.addEventListener('resize',refitResponsive);window.addEventListener('orientationchange',refitResponsive);if(window.visualViewport)visualViewport.addEventListener('resize',refitResponsive);
+render();syncDetailLayout();setTimeout(fitAll,100);setTimeout(()=>typesetMath(document.body),180);const demoQuestion=new URLSearchParams(location.search).get('question');if(demoQuestion&&questionBank[demoQuestion])setTimeout(()=>openQuestion(demoQuestion),650);
+</script>
+</body>
+</html>
