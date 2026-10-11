@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 <meta name="author" content="焦淼森" />
-<title>高等数学（上）第二、三章知识树｜平板适配预备版｜焦淼森（助教 TA）</title>
+<title>高等数学（上）第二、三章知识树</title>
 <style>
 :root{
   --bg:#f3f7f5;--paper:#fffefa;--ink:#1d3029;--muted:#6a7871;
@@ -228,6 +228,7 @@ window.MathJax = {
 .source-note{display:none!important}
 .topbar{grid-template-columns:auto 1fr auto}
 </style>
+<link rel="stylesheet" href="./adaptive-detail.css?v=20261011-1" />
 </head>
 <body>
 <header class="topbar">
@@ -411,5 +412,6 @@ let responsiveTimer=null;function refitResponsive(){clearTimeout(responsiveTimer
 window.addEventListener('resize',refitResponsive);window.addEventListener('orientationchange',refitResponsive);if(window.visualViewport)visualViewport.addEventListener('resize',refitResponsive);
 render();syncDetailLayout();setTimeout(fitAll,100);setTimeout(()=>typesetMath(document.body),180);const demoQuestion=new URLSearchParams(location.search).get('question');if(demoQuestion&&questionBank[demoQuestion])setTimeout(()=>openQuestion(demoQuestion),650);
 </script>
+<script src="./adaptive-detail.js?v=20261011-1"></script>
 </body>
 </html>
