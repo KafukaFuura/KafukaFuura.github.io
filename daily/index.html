@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="每天一道高等数学练习，按自己的节奏思考、核对解答与回顾。">
+  <meta name="theme-color" content="#f3f7f5"><title>每日一题 · 高等数学</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="./math-config.js"></script><script defer src="./vendor/mathjax.js"></script>
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+<a class="skip" href="#question">跳到题目</a>
+<header class="site-header"><div class="header-inner">
+  <a class="brand" href="./"><span class="brand-mark" aria-hidden="true">∫</span><span>高等数学<span class="brand-sub">每日一题</span></span></a>
+  <nav aria-label="主导航"><a class="nav-active" href="./" aria-current="page">每日一题</a><a href="../calculus-tree/">知识树 <span aria-hidden="true">↗</span></a></nav>
+</div></header>
+<main class="page">
+  <section class="intro"><div><p class="eyebrow">每天一点，慢慢想明白</p><h1>一道题，<br class="mobile-break">按自己的节奏。</h1><p class="intro-text">先独立思考，再展开解答。今天来做，过几天再来，也都来得及。</p></div>
+    <div class="date-block"><span>课程日期 · 北京时间</span><strong id="today-date">正在读取日期</strong><span>每日一道 · 往期可补做</span></div>
+  </section>
+  <div class="notice" id="notice" role="status" hidden></div>
+  <div class="layout">
+    <div class="main-column">
+      <div class="section-heading"><h2 id="section-label">今日题目</h2><span id="question-count" class="small-muted"></span></div>
+      <article class="question-card" id="question" tabindex="-1" aria-labelledby="question-title">
+        <div class="question-top"><span class="pill" id="question-topic"></span><span class="small-muted" id="question-date"></span></div>
+        <h2 id="question-title">正在加载题目…</h2>
+        <div class="metadata" id="metadata"></div>
+        <div class="math-content statement" id="statement"></div>
+        <div id="question-actions" hidden>
+          <details class="hint" id="hint-details"><summary>需要一点提示？</summary><div class="math-content" id="hint"></div></details>
+          <div class="answer-gate"><div><strong>把思路写下来，再看看解答。</strong><p>不计时，也不需要提交答案。</p></div><button class="primary" id="answer-button" aria-expanded="false" aria-controls="answer-panel">查看解答 <span aria-hidden="true">↓</span></button></div>
+          <section class="answer-panel" id="answer-panel" hidden aria-labelledby="answer-title"><p class="eyebrow">对照与回顾</p><h3 id="answer-title">参考解答</h3><div class="math-content" id="solution"></div></section>
+          <div class="completion-row"><label class="completion-label"><input type="checkbox" id="completed"><span>我已完成这道题</span></label><span class="small-muted" id="completed-text">按自己的实际完成情况标记</span></div>
+        </div>
+      </article>
+      <p class="under-card">答案始终由你自己决定何时展开。<span id="storage-note">完成记录仅保存在当前浏览器。</span></p>
+    </div>
+    <aside class="sidebar" aria-label="学习记录与往期题目">
+      <section class="progress-card"><div class="section-heading"><h2>我的进度</h2><span class="small-muted">本机记录</span></div><div class="progress-number"><strong id="done-count">0</strong><span> / <span id="total-count">0</span> 道已发布题</span></div><progress id="progress" max="1" value="0" aria-label="已完成题目比例"></progress><p>不用追赶别人。<br>把每一道题真正弄懂。</p></section>
+      <section class="archive-card"><div class="section-heading"><h2>往期题目</h2><span id="archive-count" class="small-muted"></span></div><label class="sr-only" for="archive-filter">筛选题目</label><select id="archive-filter"><option value="all">全部题目</option><option value="todo">尚未完成</option><option value="done">已经完成</option></select><div id="archive-list"></div><button id="back-today" class="text-button" hidden>回到今日题目 ↑</button></section>
+      <a class="tree-link" href="../calculus-tree/"><span class="tree-symbol" aria-hidden="true">⌘</span><span><strong>回到知识树</strong><small>把这道题放回知识脉络里</small></span><span aria-hidden="true">↗</span></a>
+    </aside>
+  </div>
+  <footer><span>高等数学 · 每日一题</span><a href="./editor.html">教师备题</a></footer>
+</main>
+<noscript><p class="notice">请启用 JavaScript，以按日期查看题目和展开解答。</p></noscript>
+</body></html>

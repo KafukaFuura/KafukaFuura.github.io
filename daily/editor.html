@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="高等数学每日一题备题工具：准备题目、安排日期、预览解答并导出题库。">
+  <meta name="theme-color" content="#f3f7f5">
+  <title>备题工具 · 每日一题</title>
+  <link rel="stylesheet" href="./editor.css">
+  <script src="./math-config.js" defer></script>
+  <script src="./vendor/mathjax.js" defer></script>
+  <script type="module" src="./editor.js"></script>
+</head>
+<body>
+  <a class="skip" href="#question-form">跳到题目编辑</a>
+  <header class="topbar">
+    <a class="brand" href="./">每日一题 <span>备题工具</span></a>
+    <a class="text-link" href="./">返回学生页面 <span aria-hidden="true">↗</span></a>
+  </header>
+  <main>
+    <section class="intro">
+      <p class="eyebrow">提前准备 · 按日发布</p>
+      <h1>把下一道题，准备好。</h1>
+      <p>题目与解答在这里一起编辑，按北京时间安排发布日期，每天最多一道。</p>
+      <div class="notice"><strong>这里保存的是本浏览器草稿。</strong>完成后下载题库，再到 GitHub 上传替换 <code>daily/questions.json</code>，提交后才会更新网站。此页面不会直接修改线上题库。</div>
+    </section>
+
+    <div class="toolbar" aria-label="题库操作">
+      <button id="new-question" class="primary" type="button">＋ 新建题目</button>
+      <button id="import-button" type="button">导入题库</button>
+      <input id="import-file" type="file" accept="application/json,.json" hidden>
+      <button id="download-bank" type="button">下载题库</button>
+      <a class="button" href="https://github.com/KafukaFuura/KafukaFuura.github.io/upload/main/daily/" target="_blank" rel="noopener noreferrer">前往 GitHub 上传 ↗</a>
+    </div>
+    <div id="draft-banner" class="draft-banner" hidden><p id="draft-description"></p><button id="restore-draft" type="button">恢复本机草稿</button><button id="discard-draft" type="button">删除本机草稿</button></div>
+    <p id="status" class="status" role="status" aria-live="polite">正在读取已发布题库……</p>
+
+    <div class="workspace">
+      <aside class="queue panel" aria-label="题目列表">
+        <div class="section-top"><h2>排期列表</h2><span id="bank-count" class="count">0 道</span></div>
+        <p class="muted small">北京时间 · 日期不可重复</p>
+        <div id="question-list"></div>
+      </aside>
+
+      <section class="panel editor-panel">
+        <div class="section-top"><h2 id="editor-heading">新建题目</h2><span id="edit-state" class="muted small">尚未保存</span></div>
+        <form id="question-form">
+          <div class="row two">
+            <label>发布日期<input name="releaseDate" type="date" required></label>
+            <label>题目标识<input name="id" type="text" required maxlength="80" autocomplete="off"><span class="field-help">使用字母、数字、短横线或下划线；标识用于保存学生进度，发布后请尽量保持不变。</span></label>
+          </div>
+          <label>题目标题<input name="title" type="text" required maxlength="120" placeholder="例如：用定义求一点处的导数"></label>
+          <div class="row three">
+            <label>知识点<input name="topic" type="text" required maxlength="80" placeholder="例如：导数的定义"></label>
+            <label>难度<select name="difficulty"><option value="基础">基础</option><option value="进阶">进阶</option><option value="挑战">挑战</option></select></label>
+            <label>建议用时（分钟）<input name="minutes" type="number" min="1" max="180" step="1" value="10" required></label>
+          </div>
+          <p class="field-help math-help">正文支持普通文字与 LaTeX：行内公式用 <code>\(x^2\)</code>，独立公式用 <code>\[f'(x)=2x\]</code>。换行会保留。</p>
+          <label>题干<textarea name="statement" rows="6" required placeholder="写出完整条件与求解要求。"></textarea></label>
+          <label>提示 <span class="muted">（选填）</span><textarea name="hint" rows="3" placeholder="给学生一点思路，不直接给出答案。"></textarea></label>
+          <label>完整解答<textarea name="solution" rows="8" required placeholder="写出推导过程、关键理由与最终答案。"></textarea></label>
+          <div id="validation-errors" class="errors" role="alert" hidden></div>
+          <div class="form-actions"><button class="primary" type="submit">保存到本机题库</button><button id="preview-button" type="button">预览排版</button><button id="delete-question" class="danger" type="button" disabled>删除本题</button></div>
+        </form>
+      </section>
+    </div>
+
+    <section id="preview" class="panel preview" aria-label="题目排版预览" hidden>
+      <p class="eyebrow">排版预览</p><h2 id="preview-title"></h2><p id="preview-meta" class="muted small"></p>
+      <h3>题目</h3><div id="preview-statement" class="math-text"></div>
+      <div id="preview-hint-section"><h3>提示</h3><div id="preview-hint" class="math-text"></div></div>
+      <h3>解答</h3><div id="preview-solution" class="math-text"></div>
+    </section>
+    <footer>题库只填写教学内容。上传到公开仓库的题目和答案可被访问，请勿放入学生个人信息。<a href="./README.md">使用说明</a></footer>
+  </main>
+</body>
+</html>
