@@ -21,7 +21,7 @@
     <section class="intro">
       <p class="eyebrow">教师备题</p>
       <h1>题目与发布安排</h1>
-      <p>每天围绕一个知识点安排一组练习，每组可含 1—3 道题，发布日期按北京时间计算。</p>
+      <p>每天围绕一个知识点安排一组练习，以 1 道题为主，必要时安排 2 道，发布日期按北京时间计算。</p>
       <div class="notice"><strong>这里保存的是本浏览器草稿。</strong>完成后下载题库，再到 GitHub 上传替换 <code>daily/questions.json</code>，提交后才会更新网站。此页面不会直接修改线上题库。</div>
     </section>
 
@@ -56,9 +56,9 @@
             <label>整组用时（分钟）<input name="minutes" type="number" min="1" max="180" step="1" value="10" required></label>
           </div>
           <p class="field-help math-help">正文支持普通文字与 LaTeX：行内公式用 <code>\(x^2\)</code>，独立公式用 <code>\[f'(x)=2x\]</code>。换行会保留。</p>
-          <label>本组题目<textarea name="statement" rows="6" required placeholder="围绕一个知识点填写 1—3 道题，用 (1)、(2)、(3) 编号，写明各题条件与求解要求。"></textarea><span class="field-help">同一发布日期只保存一个练习组，多道题写在同一题干中。</span></label>
+          <label>本组题目<textarea name="statement" rows="6" required placeholder="围绕一个知识点填写 1 道题，必要时安排 2 道，用 (1)、(2) 编号，写明各题条件与求解要求。"></textarea><span class="field-help">同一发布日期只保存一个练习组，两道题写在同一题干中。</span></label>
           <label>提示 <span class="muted">（选填）</span><textarea name="hint" rows="3" placeholder="填写解题提示或可用的方法。"></textarea></label>
-          <label>完整解答<textarea name="solution" rows="8" required placeholder="用与题干对应的 (1)、(2)、(3) 编号，逐题给出解题过程与答案，并说明解题技巧、适用条件和易错点。"></textarea></label>
+          <label>完整解答<textarea name="solution" rows="8" required placeholder="用与题干对应的 (1)、(2) 编号，逐题给出解题过程与答案，并说明解题技巧、适用条件和易错点。"></textarea></label>
           <div id="validation-errors" class="errors" role="alert" hidden></div>
           <div class="form-actions"><button class="primary" type="submit">保存到本机题库</button><button id="preview-button" type="button">预览排版</button><button id="delete-question" class="danger" type="button" disabled>删除本组</button></div>
         </form>
