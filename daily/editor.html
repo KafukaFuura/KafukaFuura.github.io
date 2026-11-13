@@ -19,9 +19,9 @@
   </header>
   <main>
     <section class="intro">
-      <p class="eyebrow">提前准备 · 按日发布</p>
-      <h1>把下一道题，准备好。</h1>
-      <p>题目与解答在这里一起编辑，按北京时间安排发布日期，每天最多一道。</p>
+      <p class="eyebrow">教师备题</p>
+      <h1>题目与发布安排</h1>
+      <p>编辑题目与解答，按北京时间安排发布日期，每天最多一道。</p>
       <div class="notice"><strong>这里保存的是本浏览器草稿。</strong>完成后下载题库，再到 GitHub 上传替换 <code>daily/questions.json</code>，提交后才会更新网站。此页面不会直接修改线上题库。</div>
     </section>
 
@@ -57,7 +57,7 @@
           </div>
           <p class="field-help math-help">正文支持普通文字与 LaTeX：行内公式用 <code>\(x^2\)</code>，独立公式用 <code>\[f'(x)=2x\]</code>。换行会保留。</p>
           <label>题干<textarea name="statement" rows="6" required placeholder="写出完整条件与求解要求。"></textarea></label>
-          <label>提示 <span class="muted">（选填）</span><textarea name="hint" rows="3" placeholder="给学生一点思路，不直接给出答案。"></textarea></label>
+          <label>提示 <span class="muted">（选填）</span><textarea name="hint" rows="3" placeholder="填写解题提示或可用的方法。"></textarea></label>
           <label>完整解答<textarea name="solution" rows="8" required placeholder="写出推导过程、关键理由与最终答案。"></textarea></label>
           <div id="validation-errors" class="errors" role="alert" hidden></div>
           <div class="form-actions"><button class="primary" type="submit">保存到本机题库</button><button id="preview-button" type="button">预览排版</button><button id="delete-question" class="danger" type="button" disabled>删除本题</button></div>

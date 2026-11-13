@@ -1,6 +1,6 @@
 import {dateKey,formatDate,validateBank,releasedQuestions,setMathText} from './core.js';
 const $ = id => document.getElementById(id);
-const DEMO = {id:'demo-derivative',title:'连续，就一定可导吗？',topic:'导数的定义',difficulty:'基础辨析',minutes:10,releaseDate:'',statement:'设函数\n\\[f(x)=\\begin{cases}x\\sin\\frac{1}{x},&x\\ne0,\\\\0,&x=0.\\end{cases}\\]\n判断函数在 \\(x=0\\) 处是否连续、是否可导，并说明理由。',hint:'连续性考察函数值的极限；可导性考察差商的极限。试着分别写出这两个极限。',solution:'第一步：判断连续性。\n由 \\(|x\\sin(1/x)|\\le |x|\\)，利用夹逼定理可得\n\\[\\lim_{x\\to0}f(x)=0=f(0).\\]\n因此，函数在 \\(x=0\\) 处连续。\n\n第二步：按定义考察导数。\n\\[\\frac{f(h)-f(0)}{h}=\\sin\\frac{1}{h}\\qquad(h\\ne0).\\]\n取 \\(h_n=1/(\\pi/2+2n\\pi)\\) 与 \\(k_n=1/(3\\pi/2+2n\\pi)\\)，两列均趋于 0，而对应的差商分别恒为 1 和 −1，故差商极限不存在。\n\n结论：函数在 \\(x=0\\) 处连续，但不可导。连续性本身不足以保证可导性。'};
+const DEMO = {"id":"demo-mvt-increment","title":"中值定理与增量极限","topic":"拉格朗日中值定理","difficulty":"基础应用","minutes":8,"releaseDate":"","statement":"设函数 \\(f\\) 在 \\((0,+\\infty)\\) 上可导，且\n\\[\\lim_{x\\to+\\infty}f\\prime(x)=3.\\]\n求极限 \\(\\displaystyle\\lim_{x\\to+\\infty}[f(x+2)-f(x)]\\)，并说明理由。\n\n来源：根据第五次习题课第4.5节“固定步长增量”改编。","hint":"在区间 \\([x,x+2]\\) 上使用拉格朗日中值定理，说明定理中间点在 \\(x\\to+\\infty\\) 时的趋向。","solution":"对任意 \\(x>0\\)，函数 \\(f\\) 在 \\([x,x+2]\\) 上连续，在 \\((x,x+2)\\) 内可导。由拉格朗日中值定理，存在 \\(\\xi_x\\in(x,x+2)\\)，使得\n\\[f(x+2)-f(x)=2f\\prime(\\xi_x).\\]\n因为 \\(x<\\xi_x<x+2\\)，当 \\(x\\to+\\infty\\) 时，\\(\\xi_x\\to+\\infty\\)。由题设，\\(f\\prime(\\xi_x)\\to3\\)，因此\n\\[\\lim_{x\\to+\\infty}[f(x+2)-f(x)]=2\\times3=6.\\]\n\n这里直接处理差值。题设没有给出 \\(f(x)\\) 的有限极限，不能把原式拆成两个函数极限相减。"};
 const STORAGE = 'calculus-daily-progress-v1';
 let completed = new Set(), bank, today, released = [], current, demo = false;
 try {const value = JSON.parse(localStorage.getItem(STORAGE) || '[]'); if (Array.isArray(value)) completed = new Set(value.filter(x => typeof x === 'string'));} catch { $('storage-note').textContent = '当前浏览器无法保存记录，本次仍可正常练习。'; }
@@ -16,7 +16,7 @@ function renderArchive() {
   const shown=previous.filter(q=>filter==='all'||(filter==='done'?completed.has(q.id):!completed.has(q.id)));
   $('archive-count').textContent=`${previous.length} 道`;
   $('archive-list').replaceChildren();
-  if(!shown.length){const p=document.createElement('p');p.className='empty-archive';p.textContent=previous.length?'这个分类下暂时没有题目。':'发布后的题目会按日期留在这里，随时可以回来补做。';$('archive-list').append(p);}
+  if(!shown.length){const p=document.createElement('p');p.className='empty-archive';p.textContent=previous.length?'该分类暂无题目。':'往期题目按发布日期排列。';$('archive-list').append(p);}
   for(const q of shown){
     const b=document.createElement('button');b.className='archive-item';b.setAttribute('aria-current',String(current?.id===q.id));
     const dot=document.createElement('span');dot.className=`archive-dot${completed.has(q.id)?' done':''}`;dot.textContent=completed.has(q.id)?'✓':'';dot.setAttribute('aria-hidden','true');
@@ -26,7 +26,7 @@ function renderArchive() {
 }
 function showQuestion(q) {
   current=q;
-  $('section-label').textContent=q.id.startsWith('demo-')?'体验一下':q.releaseDate===today?'今日题目':'往期回顾';
+  $('section-label').textContent=q.id.startsWith('demo-')?'示例题':q.releaseDate===today?'今日题目':'往期回顾';
   $('question-count').textContent=q.id.startsWith('demo-')?'示例 · 不计入正式进度':'';
   $('question-topic').textContent=q.topic;$('question-date').textContent=formatDate(q.releaseDate);$('question-title').textContent=q.title;
   $('metadata').replaceChildren();for(const value of [q.difficulty,`建议 ${q.minutes} 分钟`]){const span=document.createElement('span');span.textContent=value;$('metadata').append(span);}
@@ -35,7 +35,7 @@ function showQuestion(q) {
   $('answer-panel').hidden=true;$('answer-button').setAttribute('aria-expanded','false');$('answer-button').textContent='查看解答 ↓';
   setMathText($('solution'),'');
   $('completed').checked=completed.has(q.id);$('question-actions').hidden=false;
-  $('completed-text').textContent=q.id.startsWith('demo-')?'示例完成标记不计入正式进度':'按自己的实际完成情况标记';
+  $('completed-text').textContent=q.id.startsWith('demo-')?'示例完成标记不计入正式进度':'手动标记完成状态';
   $('back-today').hidden=q.releaseDate===today||demo;
   renderArchive();updateProgress();
 }
@@ -43,9 +43,9 @@ function showLanding() {
   const q=released.find(x=>x.releaseDate===today);
   if(q){showQuestion(q);return;}
   if(demo){showQuestion(DEMO);return;}
-  current=null;$('section-label').textContent='今日题目';$('question-count').textContent='';$('question-topic').textContent='稍作休息';$('question-date').textContent=formatDate(today);$('question-title').textContent='今天暂未安排新题';$('metadata').replaceChildren();
+  current=null;$('section-label').textContent='今日题目';$('question-count').textContent='';$('question-topic').textContent='发布安排';$('question-date').textContent=formatDate(today);$('question-title').textContent='今天暂未安排新题';$('metadata').replaceChildren();
   const upcoming=bank.questions.filter(x=>x.releaseDate>today).sort((a,b)=>a.releaseDate.localeCompare(b.releaseDate))[0];
-  setMathText($('statement'),upcoming?`下一道题将在 ${formatDate(upcoming.releaseDate)} 显示。也可以先回顾往期题目。`:'这一批题目已全部发布。你可以继续补做往期题，或等待老师安排新题。');
+  setMathText($('statement'),upcoming?`下一道题的发布日期：${formatDate(upcoming.releaseDate)}。往期题目仍可查看。`:'当前题库已全部发布，往期题目仍可查看。');
   $('question-actions').hidden=true;$('answer-panel').hidden=true;$('back-today').hidden=true;renderArchive();updateProgress();
 }
 async function loadBank() {
@@ -53,7 +53,7 @@ async function loadBank() {
   const data=await response.json(),errors=validateBank(data);if(errors.length)throw Error(errors[0]);
   bank=data;today=dateKey(new Date(),bank.timeZone);released=releasedQuestions(bank,today);demo=bank.questions.length===0;
   $('today-date').textContent=formatDate(today);$('notice').hidden=!demo;
-  if(demo)$('notice').textContent='当前为试用版：下面是一道示例题，供体验做题与查看解答。正式题库尚未排期。';
+  if(demo)$('notice').textContent='当前显示示例题。正式题库尚未排期。';
   showLanding();
 }
 $('answer-button').addEventListener('click',()=>{

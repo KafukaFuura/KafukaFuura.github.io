@@ -77,7 +77,7 @@ function renderList() {
   if (!bank.questions.length) {
     const p = document.createElement('p');
     p.className = 'empty';
-    p.textContent = '还没有正式题目。从第一道开始，逐步安排接下来的练习。';
+    p.textContent = '暂无正式题目。点击“新建题目”添加。';
     list.append(p);
   }
   for (const question of [...bank.questions].sort((a, b) => a.releaseDate.localeCompare(b.releaseDate))) {
