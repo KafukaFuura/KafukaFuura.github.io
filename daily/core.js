@@ -14,12 +14,12 @@ export function validateBank(data) {
   if (data.timeZone !== 'Asia/Shanghai') errors.push('本课程使用北京时间，timeZone 应为 Asia/Shanghai。');
   const ids = new Set(), dates = new Set();
   data.questions.forEach((q,i) => {
-    const name = `第 ${i+1} 题`;
+    const name = `第 ${i+1} 组练习`;
     if (!q || typeof q !== 'object') {errors.push(`${name}格式无效。`);return;}
     for (const key of ['id','releaseDate','title','topic','difficulty','statement','solution']) if (typeof q[key] !== 'string' || !q[key].trim()) errors.push(`${name}的 ${key} 不能为空。`);
     if (typeof q.id === 'string' && (!/^[a-zA-Z0-9_-]{1,80}$/.test(q.id) || q.id.startsWith('demo-'))) errors.push(`${name}编号请使用字母、数字、短横线或下划线，且不以 demo- 开头。`);
     if (ids.has(q.id)) errors.push(`${name}编号重复。`); ids.add(q.id);
-    if (dates.has(q.releaseDate)) errors.push(`${name}发布日期重复，每天只能安排一道题。`); dates.add(q.releaseDate);
+    if (dates.has(q.releaseDate)) errors.push(`${name}发布日期重复，每天只能安排一组练习。`); dates.add(q.releaseDate);
     const d = new Date(`${q.releaseDate}T00:00:00Z`);
     if (!/^\d{4}-\d{2}-\d{2}$/.test(q.releaseDate) || !Number.isFinite(d.getTime()) || d.toISOString().slice(0,10) !== q.releaseDate) errors.push(`${name}发布日期无效。`);
     if (!Number.isInteger(q.minutes) || q.minutes < 1 || q.minutes > 180) errors.push(`${name}建议用时应为 1—180 的整数。`);

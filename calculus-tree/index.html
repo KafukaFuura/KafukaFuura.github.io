@@ -227,6 +227,16 @@ window.MathJax = {
 .question-footer{justify-content:flex-end;font-size:14px}
 .source-note{display:none!important}
 .topbar{grid-template-columns:auto 1fr auto}
+.daily-entry{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;min-height:30px;padding:5px 12px;border:1px solid var(--green);border-radius:8px;background:var(--green);color:#fff;font-size:13px;font-weight:700;line-height:1.4;text-decoration:none;white-space:nowrap}
+.daily-entry:hover{background:#315d49;border-color:#315d49}.daily-entry:focus-visible{outline:3px solid #b7944b;outline-offset:3px}
+@media(max-width:699px){
+  :root{--app-topbar-h:164px}
+  .topbar{height:var(--app-topbar-h);grid-template-columns:minmax(0,1fr);grid-template-rows:48px 44px 40px;gap:6px;padding:10px max(12px,env(safe-area-inset-right)) 10px max(12px,env(safe-area-inset-left))}
+  .brand{grid-column:1;grid-row:1;min-width:0}.brand h1{font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.brand p{font-size:11px;margin:3px 0 0}
+  .controls{grid-column:1;grid-row:2;min-width:0;width:100%;flex-wrap:nowrap;overflow-x:auto;gap:6px}.controls .btn{flex:0 0 auto;min-height:40px;padding:7px 10px;font-size:12px}
+  .navrow{grid-column:1;grid-row:3;min-width:0;width:100%;gap:8px}.navrow .crumbs{min-width:0}.daily-entry{min-height:40px;padding:8px 12px}
+}
+@media(min-width:700px) and (max-width:980px) and (orientation:portrait){.topbar{grid-template-columns:minmax(0,1fr)}}
 </style>
 <link rel="stylesheet" href="./adaptive-detail.css?v=20261011-1" />
 </head>
@@ -242,7 +252,7 @@ window.MathJax = {
     <button class="btn primary" id="tourBtn" hidden>自动演示</button>
   </div>
   <div class="help">触控：轻点节点展开　单指拖动　双指缩放<br>讲解区可上下滑动　黄色按钮查看题面</div>
-  <div class="navrow"><div class="crumbs" id="crumbs"></div><div class="chapter-switch" id="chapterSwitch"></div></div>
+  <div class="navrow"><a class="daily-entry" href="/daily/" title="查看每日知识点练习与参考解答">每日一题 <span aria-hidden="true">→</span></a><div class="crumbs" id="crumbs"></div><div class="chapter-switch" id="chapterSwitch"></div></div>
 </header>
 <div class="viewport" id="viewport">
   <div class="world" id="world"><svg class="connections" id="connections" viewBox="0 0 5000 9000"></svg><div class="node-layer" id="nodeLayer"></div></div>

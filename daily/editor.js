@@ -1,4 +1,4 @@
-import { validateBank, renderMath } from './core.js';
+import { validateBank, renderMath } from './core.js?v=20261113-3';
 
 const $ = (selector) => document.querySelector(selector);
 const form = $('#question-form');
@@ -42,7 +42,7 @@ function fillForm(question = {}) {
   }
   formChanged = false;
   $('#edit-state').textContent = selectedId ? '已保存到本机题库' : '尚未保存';
-  $('#editor-heading').textContent = selectedId ? '编辑题目' : '新建题目';
+  $('#editor-heading').textContent = selectedId ? '编辑练习组' : '新建练习组';
   $('#delete-question').disabled = !selectedId;
   $('#validation-errors').hidden = true;
   $('#preview').hidden = true;
@@ -58,7 +58,7 @@ function newQuestion() {
 }
 
 function allowLeave() {
-  return !formChanged || window.confirm('这道题的修改还未保存到题库。要放弃这些修改并继续吗？');
+  return !formChanged || window.confirm('这组练习的修改还未保存到题库。要放弃这些修改并继续吗？');
 }
 
 function persist() {
@@ -73,11 +73,11 @@ function persist() {
 function renderList() {
   const list = $('#question-list');
   list.replaceChildren();
-  $('#bank-count').textContent = `${bank.questions.length} 道`;
+  $('#bank-count').textContent = `${bank.questions.length} 组`;
   if (!bank.questions.length) {
     const p = document.createElement('p');
     p.className = 'empty';
-    p.textContent = '暂无正式题目。点击“新建题目”添加。';
+    p.textContent = '暂无正式练习。点击“新建练习组”添加。';
     list.append(p);
   }
   for (const question of [...bank.questions].sort((a, b) => a.releaseDate.localeCompare(b.releaseDate))) {
@@ -107,7 +107,7 @@ function showErrors(errors) {
   const node = $('#validation-errors');
   node.textContent = errors.join('\n');
   node.hidden = !errors.length;
-  if (errors.length) status('题目暂未保存，请修正下方提示。', true);
+  if (errors.length) status('练习组暂未保存，请修正下方提示。', true);
 }
 
 form.addEventListener('input', () => {
@@ -132,7 +132,7 @@ form.addEventListener('submit', (event) => {
 
 $('#new-question').addEventListener('click', newQuestion);
 $('#delete-question').addEventListener('click', () => {
-  if (!selectedId || !window.confirm('从本机题库中删除这道题？上传更新后的题库才会影响网站。')) return;
+  if (!selectedId || !window.confirm('从本机题库中删除这组练习？上传更新后的题库才会影响网站。')) return;
   bank.questions = bank.questions.filter((q) => q.id !== selectedId);
   selectedId = null;
   fillForm(freshQuestion());
@@ -175,7 +175,7 @@ $('#download-bank').addEventListener('click', () => {
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
-  status(`已导出 ${bank.questions.length} 道题。下一步：前往 GitHub 上传并替换 daily/questions.json。`);
+  status(`已导出 ${bank.questions.length} 组练习。下一步：前往 GitHub 上传并替换 daily/questions.json。`);
 });
 
 $('#import-button').addEventListener('click', () => $('#import-file').click());
@@ -188,13 +188,13 @@ $('#import-file').addEventListener('change', async (event) => {
     const errors = validateBank(data);
     if (data.timeZone !== 'Asia/Shanghai') errors.push('此课程使用北京时间，请将题库的 timeZone 设为 Asia/Shanghai。');
     if (errors.length) throw new Error(errors.join('\n'));
-    if (!window.confirm(`文件校验通过，共 ${data.questions.length} 道题。导入将替换当前本机题库，是否继续？`)) return;
+    if (!window.confirm(`文件校验通过，共 ${data.questions.length} 组练习。导入将替换当前本机题库，是否继续？`)) return;
     bank = data;
     selectedId = null;
     fillForm(freshQuestion());
     renderList();
     persist();
-    status(`已导入 ${bank.questions.length} 道题到本机。线上题库尚未改变。`);
+    status(`已导入 ${bank.questions.length} 组练习到本机。线上题库尚未改变。`);
   } catch (error) {
     status(`导入失败：${error.message}`, true);
   } finally {
@@ -210,7 +210,7 @@ $('#restore-draft').addEventListener('click', () => {
   selectedId = bank.questions.some((q) => q.id === availableDraft.selectedId) ? availableDraft.selectedId : null;
   fillForm(availableDraft.fields || {});
   formChanged = Boolean(availableDraft.formChanged);
-  $('#edit-state').textContent = formChanged ? '已恢复未保存的修改' : selectedId ? '已恢复本机题目' : '尚未保存';
+  $('#edit-state').textContent = formChanged ? '已恢复未保存的修改' : selectedId ? '已恢复本机练习组' : '尚未保存';
   renderList();
   $('#draft-banner').hidden = true;
   persist();
@@ -247,7 +247,7 @@ async function start() {
     const errors = validateBank(data);
     if (errors.length) throw new Error(errors.join('；'));
     bank = data;
-    status(`已读取线上题库，共 ${bank.questions.length} 道正式题目。修改仅保存在本机。`);
+    status(`已读取线上题库，共 ${bank.questions.length} 组正式练习。修改仅保存在本机。`);
   } catch (error) {
     status(`无法读取线上题库：${error.message}。当前为全新空题库，可导入文件或恢复本机草稿；上传前请先核对线上内容。`, true);
   }

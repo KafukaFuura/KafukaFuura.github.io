@@ -2,11 +2,11 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="高等数学每日一题：查看当日题目、参考解答与往期练习。">
+  <meta name="description" content="高等数学每日一题：每天一个知识点，配套 1—3 道题、参考解答与往期练习。">
   <meta name="theme-color" content="#f3f7f5"><title>每日一题 · 高等数学</title>
   <link rel="stylesheet" href="./styles.css">
   <script defer src="./math-config.js"></script><script defer src="./vendor/mathjax.js"></script>
-  <script type="module" src="./app.js?v=20261113-2"></script>
+  <script type="module" src="./app.js?v=20261113-3"></script>
 </head>
 <body>
 <a class="skip" href="#question">跳到题目</a>
@@ -15,13 +15,13 @@
   <nav aria-label="主导航"><a class="nav-active" href="./" aria-current="page">每日一题</a><a href="../calculus-tree/">知识树 <span aria-hidden="true">↗</span></a></nav>
 </div></header>
 <main class="page">
-  <section class="intro"><div><p class="eyebrow">课程练习</p><h1>高等数学 · 每日一题</h1><p class="intro-text">查看当日题目、参考解答与往期练习。</p></div>
-    <div class="date-block"><span>课程日期 · 北京时间</span><strong id="today-date">正在读取日期</strong><span>每日一道 · 往期可补做</span></div>
+  <section class="intro"><div><p class="eyebrow">课程练习</p><h1>高等数学 · 每日一题</h1><p class="intro-text">每天围绕一个知识点，安排 1—3 道题。查看题目、参考解答与往期练习。</p></div>
+    <div class="date-block"><span>课程日期 · 北京时间</span><strong id="today-date">正在读取日期</strong><span>每日一个知识点 · 往期可补做</span></div>
   </section>
   <div class="notice" id="notice" role="status" hidden></div>
   <div class="layout">
     <div class="main-column">
-      <div class="section-heading"><h2 id="section-label">今日题目</h2><span id="question-count" class="small-muted"></span></div>
+      <div class="section-heading"><h2 id="section-label">今日练习</h2><span id="question-count" class="small-muted"></span></div>
       <article class="question-card" id="question" tabindex="-1" aria-labelledby="question-title">
         <div class="question-top"><span class="pill" id="question-topic"></span><span class="small-muted" id="question-date"></span></div>
         <h2 id="question-title">正在加载题目…</h2>
@@ -31,14 +31,14 @@
           <details class="hint" id="hint-details"><summary>查看提示</summary><div class="math-content" id="hint"></div></details>
           <div class="answer-gate"><div><strong>参考解答</strong><p>点击展开完整解题过程。</p></div><button class="primary" id="answer-button" aria-expanded="false" aria-controls="answer-panel">查看解答 <span aria-hidden="true">↓</span></button></div>
           <section class="answer-panel" id="answer-panel" hidden aria-labelledby="answer-title"><p class="eyebrow">解题过程</p><h3 id="answer-title">参考解答</h3><div class="math-content" id="solution"></div></section>
-          <div class="completion-row"><label class="completion-label"><input type="checkbox" id="completed"><span>已完成</span></label><span class="small-muted" id="completed-text">手动标记完成状态</span></div>
+          <div class="completion-row"><label class="completion-label"><input type="checkbox" id="completed"><span>本组已完成</span></label><span class="small-muted" id="completed-text">完成整组练习后勾选</span></div>
         </div>
       </article>
-      <p class="under-card">解答默认收起，点击按钮展开。<span id="storage-note">完成记录仅保存在当前浏览器。</span></p>
+      <p class="under-card">解答默认收起，点击按钮展开。<span id="storage-note">勾选后自动保存到当前浏览器；清除网站数据或使用无痕模式可能丢失，换设备不自动同步。</span></p>
     </div>
-    <aside class="sidebar" aria-label="学习记录与往期题目">
-      <section class="progress-card"><div class="section-heading"><h2>我的进度</h2><span class="small-muted">本机记录</span></div><div class="progress-number"><strong id="done-count">0</strong><span> / <span id="total-count">0</span> 道已发布题</span></div><progress id="progress" max="1" value="0" aria-label="已完成题目比例"></progress><p>统计已标记完成的题目。</p></section>
-      <section class="archive-card"><div class="section-heading"><h2>往期题目</h2><span id="archive-count" class="small-muted"></span></div><label class="sr-only" for="archive-filter">筛选题目</label><select id="archive-filter"><option value="all">全部题目</option><option value="todo">尚未完成</option><option value="done">已经完成</option></select><div id="archive-list"></div><button id="back-today" class="text-button" hidden>回到今日题目 ↑</button></section>
+    <aside class="sidebar" aria-label="学习记录与往期练习">
+      <section class="progress-card"><div class="section-heading"><h2>我的进度</h2><span class="small-muted">本机记录</span></div><div class="progress-number"><strong id="done-count">0</strong><span> / <span id="total-count">0</span> 组已发布练习</span></div><progress id="progress" max="1" value="0" aria-label="已完成练习组比例"></progress><p>按组统计已标记完成的练习。</p></section>
+      <section class="archive-card"><div class="section-heading"><h2>往期练习</h2><span id="archive-count" class="small-muted"></span></div><label class="sr-only" for="archive-filter">筛选练习</label><select id="archive-filter"><option value="all">全部练习</option><option value="todo">尚未完成</option><option value="done">已经完成</option></select><div id="archive-list"></div><button id="back-today" class="text-button" hidden>回到今日练习 ↑</button></section>
       <a class="tree-link" href="../calculus-tree/"><span class="tree-symbol" aria-hidden="true">⌘</span><span><strong>知识树</strong><small>查看相关定义、定理与方法</small></span><span aria-hidden="true">↗</span></a>
     </aside>
   </div>
